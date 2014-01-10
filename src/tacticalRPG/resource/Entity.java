@@ -10,12 +10,12 @@ public class Entity {
 	public int posX = 0;
 	public int posY = 0;
 	
-	public SpriteSheet spriteSheet;
+	public BufferedImage spriteSheet;
 	public BufferedImage sprite;
 	
 	public Entity() {
 		getSheet();
-		this.sprite = spriteSheet.getImage().getSubimage(0, 0, tileWidth, tileHeight);
+		this.sprite = spriteSheet.getSubimage(0, 0, tileWidth, tileHeight);
 	}
 	
 	public void getSheet() {
