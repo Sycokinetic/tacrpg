@@ -3,7 +3,7 @@ package tacticalRPG.resource;
 import java.awt.image.BufferedImage;
 
 public class Entity {
-	private static String spriteSheetFile = "{0}res{0}animation.png";
+	private static String spriteSheetFile = "/res/animation.png";
 	private static int tileWidth = 100;
 	private static int tileHeight = 100;
 	

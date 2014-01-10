@@ -21,8 +21,6 @@ public class SpriteSheet {
 	 * @param h  the height of a tile in the file
 	 */
 	public SpriteSheet(String filename) {
-		filename = MessageFormat.format(filename, tacticalRPG.resource.Texture.sep);
-		
 		try {
 			sheet = ImageIO.read(Texture.class.getResource(filename));
 		} catch (IOException e) {
