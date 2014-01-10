@@ -6,8 +6,6 @@ import java.util.Map;
 import tacticalRPG.resource.SpriteSheet;
 
 public class Texture {
-	public static final String sep = System.getProperty("file.separator");
-
 	public static Map<String, String> FILES = new HashMap<String, String>();
 	public static Map<String, SpriteSheet> SpriteSheets = new HashMap<String, SpriteSheet>();
 
