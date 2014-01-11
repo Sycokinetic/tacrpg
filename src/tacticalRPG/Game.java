@@ -2,8 +2,6 @@ package tacticalRPG;
 
 import javax.swing.JFrame;
 
-import tacticalRPG.resource.*;
-
 public class Game extends JFrame implements Runnable {
 	boolean isRunning = false;
 	

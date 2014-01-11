@@ -1,4 +1,4 @@
-package tacticalRPG.resource;
+package tacticalRPG;
 
 import java.io.IOException;
 import java.util.HashMap;

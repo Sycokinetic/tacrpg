@@ -1,6 +1,7 @@
-package tacticalRPG.resource;
+package tacticalRPG;
 
 import java.awt.image.BufferedImage;
+
 
 public class Entity {
 	private static String spriteSheetFile = "/res/animation.png";
