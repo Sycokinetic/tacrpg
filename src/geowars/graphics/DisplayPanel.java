@@ -1,13 +1,10 @@
 package geowars.graphics;
 
-import java.awt.Color;
+import geowars.entity.*;
+
 import java.awt.Graphics;
 import java.util.ArrayList;
-import java.util.HashMap;
 import javax.swing.JPanel;
-
-import geowars.Game;
-import geowars.entity.*;
 
 public class DisplayPanel extends JPanel {
 	private ArrayList<Entity> entityList;
@@ -29,7 +26,7 @@ public class DisplayPanel extends JPanel {
 		super.paintComponent(g);
 		
 		for (Entity i: this.entityList) {
-			g.drawImage(i.getCurFrame(), i.getPos().x, i.getPos().y, this);
+			g.drawImage(i.getCurFrame(), i.getCurPos().x, i.getCurPos().y, this);
 		}
 	}
 	

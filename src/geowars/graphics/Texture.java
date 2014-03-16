@@ -1,33 +1,40 @@
 package geowars.graphics;
 
+import geowars.entity.Entity.AnimKey;
+
 import java.awt.image.BufferedImage;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.io.IOException;
 import java.util.HashMap;
-
 import javax.imageio.ImageIO;
 
 public class Texture {
-	//private static Map<String, BufferedImage> SpriteSheets = new HashMap<String, BufferedImage>();
-	private static HashMap<String, BufferedImage[]> SpriteList = new HashMap<String, BufferedImage[]>();
+	private static HashMap<String, HashMap<AnimKey, BufferedImage[]>> SpriteList = new HashMap<String, HashMap<AnimKey, BufferedImage[]>>();
 	
 	public static void clearLibrary() {
-		//SpriteSheets = null;
 		SpriteList = null;
 	}
 	
-	public static void loadSheet(String fn, int fc, Dimension d) {
+	public static void loadSheet(String fn, Dimension tileSize, int width, AnimKey[] keys) {
 		try {
-			BufferedImage sheet = ImageIO.read(Texture.class.getResource(fn));
-			//SpriteSheets.put(filename, sheet);
+			HashMap<AnimKey, BufferedImage[]> set = new HashMap<AnimKey, BufferedImage[]>();
 			
-			BufferedImage[] sprites = new BufferedImage[fc];
-			for (int i = 0; i < fc; i++) {
-				BufferedImage s = sheet.getSubimage(i*d.width, 0, d.width, d.height);
-				sprites[i] = s;
+			BufferedImage sheet = ImageIO.read(Texture.class.getResource(fn));
+			
+			for (int i = 0; i < keys.length; i++) {
+				BufferedImage[] row = new BufferedImage[width];
+				
+				for (int j = 0; j < width; j++) {
+					System.out.println(keys[i]);
+					BufferedImage img = sheet.getSubimage(j*tileSize.width, i*tileSize.height, tileSize.width, tileSize.height);
+					row[j] = img;
+				}
+				
+				set.put(keys[i], row);
 			}
 			
-			SpriteList.put(fn, sprites);
+			SpriteList.put(fn, set);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (IllegalArgumentException e) {
@@ -41,11 +48,16 @@ public class Texture {
 	}
 	*/
 	
-	public static BufferedImage getFrame(String nm, int fr) {
-		return SpriteList.get(nm)[fr];
+	public static boolean checkSheet(String nm) {
+		if (SpriteList.containsValue(nm)) {
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 	
-	public static BufferedImage[] getFrameSet(String nm) {
-		return SpriteList.get(nm);
+	public static BufferedImage getFrame(String nm, AnimKey k, int fr) {
+		return SpriteList.get(nm).get(k)[fr];
 	}
 }

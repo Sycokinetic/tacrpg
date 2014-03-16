@@ -4,14 +4,17 @@ import geowars.graphics.Texture;
 
 import java.awt.Dimension;
 
-public class Player extends WorldObject {
+public class Player extends Entity {
 	public Player() {
 		this.SHEETFILE = "/res/ring.png";
 		this.TILESIZE = new Dimension(99, 99);
-		this.FRAMECOUNT = 1;
+		this.SHEETWIDTH = 4;
+		this.SHEETKEYS = new AnimKey[2];
+		this.SHEETKEYS[0] = AnimKey.MAIN;
+		this.SHEETKEYS[1] = AnimKey.JUMP;
 		
-		if (Texture.getFrameSet(SHEETFILE) == null) {
-			Texture.loadSheet(this.SHEETFILE, this.FRAMECOUNT, this.TILESIZE);
+		if (!Texture.checkSheet(this.SHEETFILE)) {
+			Texture.loadSheet(this.SHEETFILE, this.TILESIZE, this.SHEETWIDTH, this.SHEETKEYS);
 		}
 		
 		this.update();
@@ -22,27 +25,38 @@ public class Player extends WorldObject {
 		
 		this.SHEETFILE = "/res/animation.png";
 		this.TILESIZE = new Dimension(99, 99);
-		this.FRAMECOUNT = 1;
+		this.SHEETWIDTH = 4;
+		this.SHEETKEYS = new AnimKey[2];
+		this.SHEETKEYS[0] = AnimKey.MAIN;
+		this.SHEETKEYS[1] = AnimKey.JUMP;
 		
-		if (Texture.getFrameSet(SHEETFILE) == null) {
-			Texture.loadSheet(this.SHEETFILE, this.FRAMECOUNT, this.TILESIZE);
+		if (!Texture.checkSheet(this.SHEETFILE)) {
+			Texture.loadSheet(this.SHEETFILE, this.TILESIZE, this.SHEETWIDTH, this.SHEETKEYS);
 		}
 	}
 	
 	public void moveDown(int n) {
-		this.pos.y += n;
+		this.curFrame = 0;
+		this.curPos.y += n;
 	}
 	
 	public void moveLeft(int n) {
-		this.pos.x -= n;
+		this.curFrame = 1;
+		this.curPos.x -= n;
 	}
 	
 	public void moveRight(int n) {
-		this.pos.x += n;
+		this.curFrame = 2;
+		this.curPos.x += n;
 	}
 	
 	public void moveUp(int n) {
-		this.pos.y -= n;
+		this.curFrame = 3;
+		this.curPos.y -= n;
+	}
+	
+	public void jump() {
+		this.curAnim = AnimKey.JUMP;
 	}
 	
 	@Override

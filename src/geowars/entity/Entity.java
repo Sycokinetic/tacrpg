@@ -8,46 +8,72 @@ import java.awt.Point;
 import javax.swing.JLabel;
 
 public abstract class Entity extends JLabel {
+	public enum AnimKey {MAIN, JUMP};
+	
 	protected String SHEETFILE;
 	protected Dimension TILESIZE;
-	protected int FRAMECOUNT;
+	protected int SHEETWIDTH;
+	protected AnimKey[] SHEETKEYS;
 	
-	protected int frame;
-	protected Point pos;
+	protected AnimKey curAnim;
+	protected int curFrame;
+	protected Point curPos;
 	
 	public Entity() {
 		this.SHEETFILE = null;
 		this.TILESIZE = null;
-		this.FRAMECOUNT = 0;
+		this.SHEETWIDTH = 0;
+		this.SHEETKEYS = null;
 		
-		this.frame = 0;
-		this.pos = new Point(0, 0);
+		this.curAnim = AnimKey.MAIN;
+		this.curFrame = 0;
+		this.curPos = new Point(0, 0);
 	}
 	
 	public Entity(int[] p) {
-		this.frame = 0;
-		this.pos = new Point(p[0], p[1]);
+		this.SHEETFILE = null;
+		this.TILESIZE = null;
+		this.SHEETWIDTH = 0;
+		this.SHEETKEYS = null;
+		
+		this.curAnim = AnimKey.MAIN;
+		this.curFrame = 0;
+		this.curPos = new Point(0, 0);
 	}
 	
 	public Entity(Point p) {
-		this.frame = 0;
-		this.pos = p;
+		this.SHEETFILE = null;
+		this.TILESIZE = null;
+		this.SHEETWIDTH = 0;
+		this.SHEETKEYS = null;
+		
+		this.curAnim = AnimKey.MAIN;
+		this.curFrame = 0;
+		this.curPos = new Point(0, 0);
+	}
+	
+	public AnimKey getCurAnim() {
+		return this.curAnim;
 	}
 	
 	public BufferedImage getCurFrame() {
-		return Texture.getFrame(SHEETFILE, frame);
+		return Texture.getFrame(SHEETFILE, this.curAnim, this.curFrame);
 	}
 	
 	public int getCurFrameVal() {
-		return this.frame;
+		return this.curFrame;
 	}
 	
-	public int getFrameCount() {
-		return FRAMECOUNT;
+	public Point getCurPos() {
+		return this.curPos;
 	}
 	
-	public Point getPos() {
-		return this.pos;
+	public int getSheetWidth() {
+		return this.SHEETWIDTH;
+	}
+	
+	public AnimKey[] getSheetKeys() {
+		return this.SHEETKEYS;
 	}
 	
 	/*
@@ -64,14 +90,22 @@ public abstract class Entity extends JLabel {
 		return TILESIZE;
 	}
 	
-	public void setFrame(int fr) {
-		this.frame = fr;
+	public void setCurAnim(AnimKey a) {
+		this.curAnim = a;
+	}
+	
+	public void setCurFrame(int fr) {
+		this.curFrame = fr;
+	}
+	
+	public void setCurPos(Point p) {
+		this.curPos = p;
 	}
 	
 	@Override
 	public String toString() {
 		String s = "Type: %s, Sheet Path: %s, Current Frame: %d";
-		return String.format(s, this.getClass(), SHEETFILE, this.frame);
+		return String.format(s, this.getClass(), SHEETFILE, this.curFrame);
 	}
 	
 	public  abstract void update();

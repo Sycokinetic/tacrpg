@@ -4,15 +4,18 @@ import geowars.graphics.Texture;
 
 import java.awt.Dimension;
 import java.awt.Point;
+import java.util.HashMap;
 
 public class WorldObject extends Entity {
 	public WorldObject() {
 		this.SHEETFILE = "/res/animation.png";
 		this.TILESIZE = new Dimension(100, 100);
-		this.FRAMECOUNT = 10;
+		this.SHEETWIDTH = 10;
+		this.SHEETKEYS = new AnimKey[1];
+		this.SHEETKEYS[0] = AnimKey.MAIN;
 		
-		if (Texture.getFrameSet(SHEETFILE) == null) {
-			Texture.loadSheet(this.SHEETFILE, this.FRAMECOUNT, this.TILESIZE);
+		if (!Texture.checkSheet(this.SHEETFILE)) {
+			Texture.loadSheet(this.SHEETFILE, this.TILESIZE, this.SHEETWIDTH, this.SHEETKEYS);
 		}
 		
 		this.update();
@@ -23,10 +26,12 @@ public class WorldObject extends Entity {
 		
 		this.SHEETFILE = "/res/animation.png";
 		this.TILESIZE = new Dimension(100, 100);
-		this.FRAMECOUNT = 10;
+		this.SHEETWIDTH = 10;
+		this.SHEETKEYS = new AnimKey[1];
+		this.SHEETKEYS[0] = AnimKey.MAIN;
 		
-		if (Texture.getFrameSet(SHEETFILE) == null) {
-			Texture.loadSheet(this.SHEETFILE, this.FRAMECOUNT, this.TILESIZE);
+		if (!Texture.checkSheet(SHEETFILE)) {
+			Texture.loadSheet(this.SHEETFILE, this.TILESIZE, this.SHEETWIDTH, this.SHEETKEYS);
 		}
 	}
 	
@@ -35,26 +40,28 @@ public class WorldObject extends Entity {
 		
 		this.SHEETFILE = "/res/animation.png";
 		this.TILESIZE = new Dimension(100, 100);
-		this.FRAMECOUNT = 10;
+		this.SHEETWIDTH = 10;
+		this.SHEETKEYS = new AnimKey[1];
+		this.SHEETKEYS[0] = AnimKey.MAIN;
 		
-		if (Texture.getFrameSet(SHEETFILE) == null) {
-			Texture.loadSheet(this.SHEETFILE, this.FRAMECOUNT, this.TILESIZE);
+		if (!Texture.checkSheet(SHEETFILE)) {
+			Texture.loadSheet(this.SHEETFILE, this.TILESIZE, this.SHEETWIDTH, this.SHEETKEYS);
 		}
 	}
 	
 	public void update() {
-		if (this.frame < this.FRAMECOUNT - 1) {
-			this.frame++;
+		if (this.curFrame < this.SHEETWIDTH - 1) {
+			this.curFrame++;
 		}
 		else {
-			this.frame = 0;
+			this.curFrame = 0;
 		}
 		
-		if (this.pos.x < 100) {
-			this.pos.x += 10;
+		if (this.curPos.x < 100) {
+			this.curPos.x += 10;
 		}
 		else {
-			this.pos.x = 0;
+			this.curPos.x = 0;
 		}
 	}
 }

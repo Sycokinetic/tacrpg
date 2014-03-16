@@ -25,6 +25,9 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 		else if (key == KeyEvent.VK_UP) {
 			Game.getPlayer().moveUp(10);
 		}
+		else if (key == KeyEvent.VK_SPACE) {
+			Game.getPlayer().jump();
+		}
 	}
 	
 	@Override
