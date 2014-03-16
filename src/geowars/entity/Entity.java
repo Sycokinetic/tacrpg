@@ -5,8 +5,9 @@ import geowars.graphics.Texture;
 import java.awt.image.BufferedImage;
 import java.awt.Dimension;
 import java.awt.Point;
+import javax.swing.JLabel;
 
-public abstract class Entity {
+public abstract class Entity extends JLabel {
 	protected String SHEETFILE;
 	protected Dimension TILESIZE;
 	protected int FRAMECOUNT;

@@ -13,6 +13,18 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 		if (key == KeyEvent.VK_ESCAPE) {
 			Game.setRunning(false);
 		}
+		else if (key == KeyEvent.VK_DOWN){
+			Game.getPlayer().moveDown(10);
+		}
+		else if (key == KeyEvent.VK_LEFT) {
+			Game.getPlayer().moveLeft(10);
+		}
+		else if (key == KeyEvent.VK_RIGHT) {
+			Game.getPlayer().moveRight(10);
+		}
+		else if (key == KeyEvent.VK_UP) {
+			Game.getPlayer().moveUp(10);
+		}
 	}
 	
 	@Override

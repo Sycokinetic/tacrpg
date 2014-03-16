@@ -1,22 +1,26 @@
 package geowars;
 
+import geowars.entity.*;
+import geowars.graphics.*;
+
 import java.util.ArrayList;
 import javax.swing.JFrame;
-
-import geowars.entity.*;
-import geowars.graphics.DisplayPanel;
 
 public class Game extends JFrame {	
 	private static String version = "Geowars PC v0.1";
 	private static boolean isRunning = false;
 	
 	private static DisplayPanel display;
-	public static InputListener eventListener;
+	private static InputListener eventListener;
 	private static ArrayList<Entity> entityList;
+	private static Player player;
 	
-	public Game() {	
+	public Game() {
+		player = new Player();
 		entityList = new ArrayList<Entity>();
-		display = new DisplayPanel(entityList);
+		entityList.add(player);
+		
+		display = new DisplayPanel(entityList);	
 		eventListener = new InputListener();
 		
 		setContentPane(display);
@@ -24,7 +28,7 @@ public class Game extends JFrame {
 		addMouseListener(eventListener);
 		addMouseMotionListener(eventListener);
 		
-		setSize(400, 400);
+		setSize(1000, 1000);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setTitle(version);
@@ -36,8 +40,6 @@ public class Game extends JFrame {
 		entityList.add(new WorldObject());
 		
 		while(isRunning) {
-			//System.out.println("Game Running!");
-			
 			for (Entity i: entityList) {
 				i.update();
 			}
@@ -49,10 +51,13 @@ public class Game extends JFrame {
             } catch (InterruptedException e) {
                 System.out.println("Interrupted thread!");
             }
-			//this.isRunning = false;
 		}
 		
 		dispose();
+	}
+	
+	public static Player getPlayer() {
+		return player;
 	}
 	
 	public static void setRunning(boolean b) {

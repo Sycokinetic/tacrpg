@@ -3,18 +3,14 @@ package geowars.graphics;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.HashMap;
 import javax.swing.JPanel;
 
+import geowars.Game;
 import geowars.entity.*;
 
 public class DisplayPanel extends JPanel {
 	private ArrayList<Entity> entityList;
-	
-	public DisplayPanel() {
-		this.entityList = new ArrayList<Entity>();
-		
-		setBackground(Color.BLACK);
-	}
 	
 	public DisplayPanel(ArrayList<Entity> el) {
 		this.entityList = el;
