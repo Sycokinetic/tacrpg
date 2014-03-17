@@ -1,7 +1,6 @@
 package geowars.entity;
 
 import geowars.graphics.Animation;
-import geowars.graphics.Animation.AnimKey;
 
 import java.awt.image.BufferedImage;
 import java.awt.Dimension;
@@ -12,21 +11,21 @@ public abstract class Entity {
 	protected String SHEETFILE;
 	protected Dimension TILESIZE;
 	protected int SHEETWIDTH;
-	protected HashMap<Integer, AnimKey> KEYVALS;
-	protected HashMap<AnimKey, Animation> ANIMLIST;
+	protected HashMap<Integer, String> KEYVALS;
+	protected HashMap<String, Animation> ANIMLIST;
 	
 	protected Point curPos;
-	protected AnimKey curKey;
+	protected String curKey;
 	
 	public Entity() {
 		this.SHEETFILE = null;
 		this.TILESIZE = null;
 		this.SHEETWIDTH = 0;
 		
-		this.KEYVALS = new HashMap<Integer, AnimKey>();
-		this.ANIMLIST = new HashMap<AnimKey, Animation>();
+		this.KEYVALS = new HashMap<Integer, String>();
+		this.ANIMLIST = new HashMap<String, Animation>();
 		
-		this.curKey = AnimKey.MAIN;
+		this.curKey = null;
 		this.curPos = new Point(0, 0);
 	}
 	
@@ -35,7 +34,7 @@ public abstract class Entity {
 		this.TILESIZE = null;
 		this.SHEETWIDTH = 0;
 		
-		this.curKey = AnimKey.MAIN;
+		this.curKey = null;
 		this.curPos = new Point(0, 0);
 	}
 	
@@ -44,11 +43,11 @@ public abstract class Entity {
 		this.TILESIZE = null;
 		this.SHEETWIDTH = 0;
 		
-		this.curKey = AnimKey.MAIN;
+		this.curKey = null;
 		this.curPos = new Point(0, 0);
 	}
 	
-	public AnimKey getCurAnim() {
+	public String getCurAnim() {
 		return this.curKey;
 	}
 	
@@ -68,8 +67,8 @@ public abstract class Entity {
 		return this.SHEETWIDTH;
 	}
 	
-	public AnimKey[] getSheetKeys() {
-		return this.ANIMLIST.keySet().toArray(new AnimKey[0]);
+	public String[] getSheetKeys() {
+		return this.ANIMLIST.keySet().toArray(new String[0]);
 	}
 	
 	public String getSheetName() {
@@ -80,7 +79,7 @@ public abstract class Entity {
 		return TILESIZE;
 	}
 	
-	public void setCurAnim(AnimKey a) {
+	public void setCurAnim(String a) {
 		this.curKey = a;
 	}
 	

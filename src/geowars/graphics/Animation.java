@@ -2,20 +2,8 @@ package geowars.graphics;
 
 import java.awt.image.BufferedImage;
 
-public class Animation {
-	public static enum AnimKey {
-		MAIN,
-		DOWN,
-		LEFT,
-		RIGHT,
-		UP,
-		JUMP_DOWN,
-		JUMP_LEFT,
-		JUMP_RIGHT,
-		JUMP_UP
-	};
-	
-	private AnimKey key;
+public class Animation {	
+	private String key;
 	private BufferedImage[] frameList;
 	private int curFrame;
 	
@@ -25,13 +13,13 @@ public class Animation {
 		this.frameList = null;
 	}
 	
-	public Animation(String fn, AnimKey k) {
+	public Animation(String fn, String k) {
 		this.key = k;
 		this.frameList = Library.getFrameList(fn, k);
 		this.curFrame = 0;
 	}
 	
-	public Animation(AnimKey k, BufferedImage[] fl) {
+	public Animation(String k, BufferedImage[] fl) {
 		this.key = k;
 		this.frameList = fl;
 		this.curFrame = 0;
@@ -54,7 +42,11 @@ public class Animation {
 		return this.curFrame;
 	}
 	
-	public AnimKey getKey() {
+	public String getKey() {
 		return this.key;
+	}
+	
+	public void setCurFrameVal(int n) {
+		this.curFrame = n;
 	}
 }

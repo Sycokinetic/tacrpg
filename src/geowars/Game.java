@@ -6,7 +6,7 @@ import geowars.graphics.*;
 import java.util.ArrayList;
 import javax.swing.JFrame;
 
-public class Game extends JFrame {	
+public class Game extends JFrame {
 	private static String version = "Geowars PC v0.1";
 	private static boolean isRunning = false;
 	
@@ -47,7 +47,7 @@ public class Game extends JFrame {
 			repaint();
 			
 			try {
-                Thread.sleep(100);
+                Thread.sleep(1000/60);
             } catch (InterruptedException e) {
                 System.out.println("Interrupted thread!");
             }
@@ -67,5 +67,7 @@ public class Game extends JFrame {
 	public static void main(String[] args) {
 		Game game = new Game();
 		game.run();
+		
+//		Constant.splitKeyString("MAIN_UP_DOWN");
 	}
 }

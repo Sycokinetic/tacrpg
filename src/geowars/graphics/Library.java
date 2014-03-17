@@ -1,7 +1,5 @@
 package geowars.graphics;
 
-import geowars.graphics.Animation.AnimKey;
-
 import java.awt.image.BufferedImage;
 import java.awt.Dimension;
 import java.io.IOException;
@@ -9,16 +7,15 @@ import java.util.HashMap;
 import javax.imageio.ImageIO;
 
 public class Library {
-	private static HashMap<String, HashMap<AnimKey, BufferedImage[]>> SpriteList = new HashMap<String, HashMap<AnimKey, BufferedImage[]>>();
-	private static HashMap<String, Animation[]> AnimList = new HashMap<String, Animation[]>();
+	private static HashMap<String, HashMap<String, BufferedImage[]>> SpriteList = new HashMap<String, HashMap<String, BufferedImage[]>>();
 	
 	public static void clearLibrary() {
 		SpriteList = null;
 	}
 	
-	public static void loadSheet(String fn, Dimension tileSize, int width, HashMap<Integer, AnimKey> keys) {
+	public static void loadSheet(String fn, Dimension tileSize, int width, HashMap<Integer, String> keys) {
 		try {
-			HashMap<AnimKey, BufferedImage[]> set = new HashMap<AnimKey, BufferedImage[]>();
+			HashMap<String, BufferedImage[]> set = new HashMap<String, BufferedImage[]>();
 			
 			BufferedImage sheet = ImageIO.read(Library.class.getResource(fn));
 			
@@ -41,12 +38,6 @@ public class Library {
 		}
 	}
 	
-	/*
-	public static BufferedImage getSheet(String nm) {
-		return SpriteSheets.get(nm);
-	}
-	*/
-	
 	public static boolean checkSheet(String nm) {
 		if (SpriteList.containsValue(nm)) {
 			return true;
@@ -56,11 +47,11 @@ public class Library {
 		}
 	}
 	
-	public static BufferedImage getFrame(String fn, AnimKey k, int fr) {
+	public static BufferedImage getFrame(String fn, String k, int fr) {
 		return SpriteList.get(fn).get(k)[fr];
 	}
 	
-	public static BufferedImage[] getFrameList(String fn, AnimKey k) {
+	public static BufferedImage[] getFrameList(String fn, String k) {
 		return SpriteList.get(fn).get(k);
 	}
 }
