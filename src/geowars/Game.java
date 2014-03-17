@@ -28,7 +28,7 @@ public class Game extends JFrame {
 		addMouseListener(eventListener);
 		addMouseMotionListener(eventListener);
 		
-		setSize(1000, 1000);
+		setSize(400, 400);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setTitle(version);
