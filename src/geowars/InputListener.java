@@ -10,21 +10,28 @@ import java.awt.event.MouseMotionListener;
 import java.util.HashMap;
 
 public class InputListener implements KeyListener, MouseListener, MouseMotionListener {
+	private static boolean init = false;
+	
 	private static HashMap<String, Integer> controls;
 	private static HashMap<Integer, Boolean> status;
 	
-	public InputListener() {
-		controls = new HashMap<String, Integer>();
-		status = new HashMap<Integer, Boolean>();
+	public InputListener() throws InstantiationException {
+		if (init) throw new InstantiationException("Multiple InputListener instances");
+		else {
+			init = true;
 		
-		controls.put(Constant.concatKeys(EventKey.EXIT, ModKey.GAME), KeyEvent.VK_ESCAPE);
-		controls.put(Constant.concatKeys(EventKey.MOVE, ModKey.DOWN), KeyEvent.VK_DOWN);
-		controls.put(Constant.concatKeys(EventKey.MOVE, ModKey.LEFT), KeyEvent.VK_LEFT);
-		controls.put(Constant.concatKeys(EventKey.MOVE, ModKey.RIGHT), KeyEvent.VK_RIGHT);
-		controls.put(Constant.concatKeys(EventKey.MOVE, ModKey.UP), KeyEvent.VK_UP);
-		
-		for (String i: controls.keySet()) {
-			status.put(controls.get(i), false);
+			controls = new HashMap<String, Integer>();
+			status = new HashMap<Integer, Boolean>();
+			
+			controls.put(Constant.concatKeys(EventKey.EXIT, ModKey.GAME), KeyEvent.VK_ESCAPE);
+			controls.put(Constant.concatKeys(EventKey.MOVE, ModKey.DOWN), KeyEvent.VK_DOWN);
+			controls.put(Constant.concatKeys(EventKey.MOVE, ModKey.LEFT), KeyEvent.VK_LEFT);
+			controls.put(Constant.concatKeys(EventKey.MOVE, ModKey.RIGHT), KeyEvent.VK_RIGHT);
+			controls.put(Constant.concatKeys(EventKey.MOVE, ModKey.UP), KeyEvent.VK_UP);
+			
+			for (String i: controls.keySet()) {
+				status.put(controls.get(i), false);
+			}
 		}
 	}
 	
@@ -32,16 +39,12 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 	public void keyPressed(KeyEvent evt) {
 		Integer key = evt.getKeyCode();
 		status.put(key, true);
-		
-		//System.out.println(key);
 	}
 	
 	@Override
 	public void keyReleased(KeyEvent evt) {
 		Integer key = evt.getKeyCode();
 		status.put(key, false);
-		
-		//System.out.println(key + " released");
 	}
 
 	@Override

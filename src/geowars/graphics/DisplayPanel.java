@@ -29,12 +29,4 @@ public class DisplayPanel extends JPanel {
 			g.drawImage(i.getCurFrame(), i.getCurPos().x, i.getCurPos().y, this);
 		}
 	}
-	
-	/*
-	private void render(Graphics g) {
-		for (Entity i: this.entityList) {
-			g.drawImage(i.getCurFrame(), i.getPos().x, i.getPos().y, this);
-		}
-	}
-	*/
 }
