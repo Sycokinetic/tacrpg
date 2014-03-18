@@ -1,6 +1,6 @@
 package geowars.graphics;
 
-import geowars.entity.*;
+import geowars.entity.Entity;
 
 import java.awt.Graphics;
 import java.util.ArrayList;

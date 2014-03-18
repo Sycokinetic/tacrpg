@@ -1,21 +1,25 @@
 package geowars.graphics;
 
+import geowars.resource.SpriteLibrary;
+
 import java.awt.image.BufferedImage;
 
 public class Animation {	
 	private String key;
 	private BufferedImage[] frameList;
 	private int curFrame;
+	private boolean started;
 	
 	public Animation() {
 		this.key = null;
 		this.curFrame = 0;
 		this.frameList = null;
+		this.started = false;
 	}
 	
 	public Animation(String fn, String k) {
 		this.key = k;
-		this.frameList = Library.getFrameList(fn, k);
+		this.frameList = SpriteLibrary.getFrameList(fn, k);
 		this.curFrame = 0;
 	}
 	
@@ -26,11 +30,16 @@ public class Animation {
 	}
 	
 	public void cycle() {
-		if (this.curFrame < this.frameList.length-1) {
-			this.curFrame++;
+		if (this.started) {
+			if (this.curFrame < this.frameList.length-1) {
+				this.curFrame++;
+			}
+			else {
+				this.curFrame = 0;
+			}
 		}
 		else {
-			this.curFrame = 0;
+			this.started = true;
 		}
 	}
 	
@@ -44,6 +53,11 @@ public class Animation {
 	
 	public String getKey() {
 		return this.key;
+	}
+	
+	public void reset() {
+		this.curFrame = 0;
+		this.started = false;
 	}
 	
 	public void setCurFrameVal(int n) {

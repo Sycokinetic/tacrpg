@@ -1,6 +1,7 @@
 package geowars.entity;
 
 import geowars.graphics.Animation;
+import geowars.resource.SpriteLibrary;
 
 import java.awt.image.BufferedImage;
 import java.awt.Dimension;
@@ -14,8 +15,9 @@ public abstract class Entity {
 	protected HashMap<Integer, String> KEYVALS;
 	protected HashMap<String, Animation> ANIMLIST;
 	
-	protected Point curPos;
 	protected String curKey;
+	protected Point curPos;
+	protected double curAngle;
 	
 	public Entity() {
 		this.SHEETFILE = null;
@@ -27,15 +29,16 @@ public abstract class Entity {
 		
 		this.curKey = null;
 		this.curPos = new Point(0, 0);
+		this.curAngle = 0;
 	}
 	
-	public Entity(int[] p) {
+	public Entity(int x, int y) {
 		this.SHEETFILE = null;
 		this.TILESIZE = null;
 		this.SHEETWIDTH = 0;
 		
 		this.curKey = null;
-		this.curPos = new Point(0, 0);
+		this.curPos = new Point(x, y);
 	}
 	
 	public Entity(Point p) {
@@ -79,8 +82,14 @@ public abstract class Entity {
 		return TILESIZE;
 	}
 	
-	public void setCurAnim(String a) {
-		this.curKey = a;
+	public void setCurAnim(String k) {
+		if (!this.curKey.equals(k)) {
+			for (String i: this.ANIMLIST.keySet()) {
+				this.ANIMLIST.get(i).reset();
+			}
+			
+			this.curKey = k;
+		}
 	}
 	
 	public void setCurPos(Point p) {
@@ -93,5 +102,19 @@ public abstract class Entity {
 		return String.format(s, this.getClass(), SHEETFILE);
 	}
 	
-	public  abstract void update();
+	protected void loadAnims() {
+		for (Integer i: this.KEYVALS.keySet()) {
+			String k = this.KEYVALS.get(i);
+			this.ANIMLIST.put(k, new Animation(this.SHEETFILE, k));
+		}
+	}
+	
+	protected void loadSheet() {
+		if (!SpriteLibrary.checkSheet(this.SHEETFILE)) {
+			SpriteLibrary.loadSheet(this.SHEETFILE, this.TILESIZE, this.SHEETWIDTH, this.KEYVALS);
+		}
+	}
+	
+	public abstract void update();
+	protected abstract void loadData();
 }

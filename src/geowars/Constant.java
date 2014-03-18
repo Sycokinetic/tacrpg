@@ -7,17 +7,22 @@ public class Constant {
 	public static enum EventKey {
 		MAIN,
 		MOVE,
-		JUMP,
+		TURN,
 		ATTACK,
 		EXIT
 	}
 	
 	public static enum ModKey {
 		NULL,
+		GAME,
 		DOWN,
 		LEFT,
 		RIGHT,
 		UP
+	}
+	
+	public static String concatKeys(EventKey e) {
+		return e.toString();
 	}
 	
 	public static String concatKeys(EventKey e, ModKey m) {

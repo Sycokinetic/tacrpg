@@ -1,6 +1,8 @@
 package geowars;
 
 import geowars.entity.*;
+import geowars.entity.person.Player;
+import geowars.entity.world.WorldObject;
 import geowars.graphics.*;
 
 import java.util.ArrayList;
@@ -40,6 +42,8 @@ public class Game extends JFrame {
 		entityList.add(new WorldObject());
 		
 		while(isRunning) {
+			InputListener.processKeys();
+			
 			for (Entity i: entityList) {
 				i.update();
 			}
@@ -67,7 +71,5 @@ public class Game extends JFrame {
 	public static void main(String[] args) {
 		Game game = new Game();
 		game.run();
-		
-//		Constant.splitKeyString("MAIN_UP_DOWN");
 	}
 }

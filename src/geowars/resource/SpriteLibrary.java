@@ -1,4 +1,4 @@
-package geowars.graphics;
+package geowars.resource;
 
 import java.awt.image.BufferedImage;
 import java.awt.Dimension;
@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import javax.imageio.ImageIO;
 
-public class Library {
+public class SpriteLibrary {
 	private static HashMap<String, HashMap<String, BufferedImage[]>> SpriteList = new HashMap<String, HashMap<String, BufferedImage[]>>();
 	
 	public static void clearLibrary() {
@@ -17,7 +17,7 @@ public class Library {
 		try {
 			HashMap<String, BufferedImage[]> set = new HashMap<String, BufferedImage[]>();
 			
-			BufferedImage sheet = ImageIO.read(Library.class.getResource(fn));
+			BufferedImage sheet = ImageIO.read(SpriteLibrary.class.getResource(fn));
 			
 			for (int i = 0; i < keys.size(); i++) {
 				BufferedImage[] row = new BufferedImage[width];

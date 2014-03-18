@@ -1,82 +1,47 @@
 package geowars;
 
+import geowars.Constant.*;
+
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 
 public class InputListener implements KeyListener, MouseListener, MouseMotionListener {
-	private static enum KeyFunction {
-		QUIT,
-		MOVE_DOWN,
-		MOVE_LEFT,
-		MOVE_RIGHT,
-		MOVE_UP,
-		JUMP
-	}
-	
-	private static HashMap<KeyFunction, Integer> controls;
+	private static HashMap<String, Integer> controls;
 	private static HashMap<Integer, Boolean> status;
 	
 	public InputListener() {
-		controls = new HashMap<KeyFunction, Integer>();
+		controls = new HashMap<String, Integer>();
 		status = new HashMap<Integer, Boolean>();
 		
-		controls.put(KeyFunction.QUIT, KeyEvent.VK_ESCAPE);
-		controls.put(KeyFunction.MOVE_DOWN, KeyEvent.VK_DOWN);
-		controls.put(KeyFunction.MOVE_LEFT, KeyEvent.VK_LEFT);
-		controls.put(KeyFunction.MOVE_RIGHT, KeyEvent.VK_RIGHT);
-		controls.put(KeyFunction.MOVE_UP, KeyEvent.VK_UP);
-		controls.put(KeyFunction.JUMP, KeyEvent.VK_SPACE);
+		controls.put(Constant.concatKeys(EventKey.EXIT, ModKey.GAME), KeyEvent.VK_ESCAPE);
+		controls.put(Constant.concatKeys(EventKey.MOVE, ModKey.DOWN), KeyEvent.VK_DOWN);
+		controls.put(Constant.concatKeys(EventKey.MOVE, ModKey.LEFT), KeyEvent.VK_LEFT);
+		controls.put(Constant.concatKeys(EventKey.MOVE, ModKey.RIGHT), KeyEvent.VK_RIGHT);
+		controls.put(Constant.concatKeys(EventKey.MOVE, ModKey.UP), KeyEvent.VK_UP);
 		
-		for (Field i: KeyEvent.class.getFields()) {
-			if (i.getName().contains("VK_"	)) {
-				try{
-					Integer val = i.getInt(i);
-					status.put(val, false);
-				} catch (IllegalAccessException e) {
-					e.printStackTrace();
-				}
-			}
+		for (String i: controls.keySet()) {
+			status.put(controls.get(i), false);
 		}
 	}
 	
 	@Override
 	public void keyPressed(KeyEvent evt) {
-		int key = evt.getKeyCode();
+		Integer key = evt.getKeyCode();
 		status.put(key, true);
-
-		if (key == controls.get(KeyFunction.QUIT)) {
-			Game.setRunning(false);
-		}
-		else if (key == controls.get(KeyFunction.MOVE_DOWN)) {
-			Game.getPlayer().moveDown(10);
-		}
-		else if (key == controls.get(KeyFunction.MOVE_LEFT)) {
-			Game.getPlayer().moveLeft(10);
-		}
-		else if (key == controls.get(KeyFunction.MOVE_RIGHT)) {
-			Game.getPlayer().moveRight(10);
-		}
-		else if (key == controls.get(KeyFunction.MOVE_UP)) {
-			Game.getPlayer().moveUp(10);
-		}
-		else if (key == controls.get(KeyFunction.JUMP)) {
-			Game.getPlayer().setJumping(true);
-		}
+		
+		//System.out.println(key);
 	}
 	
 	@Override
 	public void keyReleased(KeyEvent evt) {
-		int key = evt.getKeyCode();
+		Integer key = evt.getKeyCode();
 		status.put(key, false);
 		
-		if (key == controls.get(KeyFunction.JUMP)) {
-			Game.getPlayer().setJumping(false);
-		}
+		//System.out.println(key + " released");
 	}
 
 	@Override
@@ -117,5 +82,30 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 	@Override
 	public void mouseMoved(MouseEvent evt) {
 		
+	}
+	
+	public static void processKeys() {
+		for (Integer i: status.keySet()) {
+			if (status.get(i)) {
+				if (i == controls.get(Constant.concatKeys(EventKey.EXIT, ModKey.GAME))) {
+					Game.setRunning(false);
+				}
+				else if (i == controls.get(Constant.concatKeys(EventKey.MOVE, ModKey.DOWN))) {
+					Game.getPlayer().moveDown(10);
+				}
+				else if (i == controls.get(Constant.concatKeys(EventKey.MOVE, ModKey.LEFT))) {
+					Game.getPlayer().moveLeft(10);
+				}
+				else if (i == controls.get(Constant.concatKeys(EventKey.MOVE, ModKey.RIGHT))) {
+					Game.getPlayer().moveRight(10);
+				}
+				else if (i == controls.get(Constant.concatKeys(EventKey.MOVE, ModKey.UP))) {
+					Game.getPlayer().moveUp(10);
+				}
+			}
+			else {
+				
+			}
+		}
 	}
 }
