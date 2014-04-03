@@ -42,7 +42,4 @@ public abstract class Person extends Entity {
 		
 		this.ANIMLIST.get(this.curKey).cycle();
 	}
-	
-	@Override
-	public void update() {}
 }

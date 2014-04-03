@@ -9,8 +9,29 @@ import javax.imageio.ImageIO;
 public class SpriteLibrary {
 	private static HashMap<String, HashMap<String, BufferedImage[]>> SpriteList = new HashMap<String, HashMap<String, BufferedImage[]>>();
 	
+	public static boolean checkSheet(String nm) {
+		if (SpriteList.containsValue(nm)) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+	
 	public static void clearLibrary() {
 		SpriteList = null;
+	}
+	
+	public static BufferedImage getFrame(String fn, String k, int fr) {
+		return SpriteList.get(fn).get(k)[fr];
+	}
+	
+	public static BufferedImage[] getFrameList(String fn, String k) {
+		return SpriteList.get(fn).get(k);
+	}
+	
+	public static HashMap<String, HashMap<String, BufferedImage[]>> getSpriteList() {
+		return SpriteList;
 	}
 	
 	public static void loadSheet(String fn, Dimension tileSize, int width, HashMap<Integer, String> keys) {
@@ -36,22 +57,5 @@ public class SpriteLibrary {
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public static boolean checkSheet(String nm) {
-		if (SpriteList.containsValue(nm)) {
-			return true;
-		}
-		else {
-			return false;
-		}
-	}
-	
-	public static BufferedImage getFrame(String fn, String k, int fr) {
-		return SpriteList.get(fn).get(k)[fr];
-	}
-	
-	public static BufferedImage[] getFrameList(String fn, String k) {
-		return SpriteList.get(fn).get(k);
 	}
 }
