@@ -1,4 +1,4 @@
-package geowars.graphics;
+package geowars.display;
 
 import geowars.resource.SpriteLibrary;
 

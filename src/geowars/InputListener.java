@@ -11,6 +11,7 @@ package geowars;
 
 import geowars.Constant.*;
 
+import java.awt.KeyEventDispatcher;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -18,11 +19,13 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.util.HashMap;
 
-public class InputListener implements KeyListener, MouseListener, MouseMotionListener {
+public class InputListener implements KeyEventDispatcher, MouseListener, MouseMotionListener {
 	// == Private attributes ==
-	private static HashMap<String, Integer> controls;
-	private static HashMap<Integer, Boolean> status;
+	private static HashMap<String, Integer> heldControls;
+	private static HashMap<Integer, Boolean> heldStatus;
 	
+	private static HashMap<String, Integer> tapControls;
+	private static HashMap<Integer, Boolean> tapStatus;
 	
 	// == Constructors ==
 	/**
@@ -31,8 +34,11 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 	 * Initializes controls and status and creates the control scheme
 	 */
 	public InputListener() {
-		controls = new HashMap<String, Integer>();
-		status = new HashMap<Integer, Boolean>();
+		heldControls = new HashMap<String, Integer>();
+		heldStatus = new HashMap<Integer, Boolean>();
+		
+		tapControls = new HashMap<String, Integer>();
+		tapStatus = new HashMap<Integer, Boolean>();
 		
 		setControls();
 	}
@@ -46,77 +52,81 @@ public class InputListener implements KeyListener, MouseListener, MouseMotionLis
 	 * each action is activated.
 	 */
 	private static void setControls() {
-		controls.put(Constant.concatKeys(EventKey.EXIT, ModKey.GAME), KeyEvent.VK_ESCAPE);
-		controls.put(Constant.concatKeys(EventKey.MOVE, ModKey.DOWN), KeyEvent.VK_DOWN);
-		controls.put(Constant.concatKeys(EventKey.MOVE, ModKey.LEFT), KeyEvent.VK_LEFT);
-		controls.put(Constant.concatKeys(EventKey.MOVE, ModKey.RIGHT), KeyEvent.VK_RIGHT);
-		controls.put(Constant.concatKeys(EventKey.MOVE, ModKey.UP), KeyEvent.VK_UP);
+		heldControls.put(Constant.concatKeys(EventKey.MOVE, ModKey.DOWN), KeyEvent.VK_DOWN);
+		heldControls.put(Constant.concatKeys(EventKey.MOVE, ModKey.LEFT), KeyEvent.VK_LEFT);
+		heldControls.put(Constant.concatKeys(EventKey.MOVE, ModKey.RIGHT), KeyEvent.VK_RIGHT);
+		heldControls.put(Constant.concatKeys(EventKey.MOVE, ModKey.UP), KeyEvent.VK_UP);
 		
-		for (String i: controls.keySet()) {
-			status.put(controls.get(i), false);
+		tapControls.put(Constant.concatKeys(EventKey.EXIT, ModKey.GAME), KeyEvent.VK_ESCAPE);
+		tapControls.put(Constant.concatKeys(EventKey.PAUSE, ModKey.GAME), KeyEvent.VK_P);
+		
+		for (String i: heldControls.keySet()) {
+			heldStatus.put(heldControls.get(i), false);
+		}
+		
+		for (String i: tapControls.keySet()) {
+			tapStatus.put(tapControls.get(i), false);
 		}
 	}
 	
 	
 	// == Public methods ==
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent evt) {
+		System.out.println(evt.getID());
+		Integer key = evt.getKeyCode();
+		
+		if (evt.getID() == KeyEvent.KEY_PRESSED && tapStatus.containsKey(key)) {
+			tapStatus.put(key, true);
+			processTappedKey(key);
+		}
+		else if (evt.getID() == KeyEvent.KEY_RELEASED && tapStatus.containsKey(key)){
+			tapStatus.put(key, false);
+		}
+		else if (evt.getID() == KeyEvent.KEY_PRESSED && heldStatus.containsKey(key)) {
+			heldStatus.put(key, true);
+		}
+		else if (evt.getID() == KeyEvent.KEY_RELEASED && heldStatus.containsKey(key)) {
+			heldStatus.put(key, false);
+		}
+		
+		return false;
+	}
+	
 	/**
 	 * Loops over status and identifies those keys which are activated.
 	 * If a key is activated, the appropriate function is called.
 	 * <p>
 	 * Contains hard link between EventKeys/ModKeys and actions.
 	 */
-	public static void processKeys() {
-		for (Integer i: status.keySet()) {
-			if (status.get(i)) {
-				if (i == controls.get(Constant.concatKeys(EventKey.EXIT, ModKey.GAME))) {
-					Game.setRunning(false);
-				}
-				else if (i == controls.get(Constant.concatKeys(EventKey.MOVE, ModKey.DOWN))) {
+	public static void processHeldKeys() {
+		//System.out.println("Checked");
+		for (Integer i: heldStatus.keySet()) {
+			if (heldStatus.get(i)) {
+				if (i == heldControls.get(Constant.concatKeys(EventKey.MOVE, ModKey.DOWN))) {
 					Game.getPlayer().moveDown(5);
 				}
-				else if (i == controls.get(Constant.concatKeys(EventKey.MOVE, ModKey.LEFT))) {
+				else if (i == heldControls.get(Constant.concatKeys(EventKey.MOVE, ModKey.LEFT))) {
 					Game.getPlayer().moveLeft(5);
 				}
-				else if (i == controls.get(Constant.concatKeys(EventKey.MOVE, ModKey.RIGHT))) {
+				else if (i == heldControls.get(Constant.concatKeys(EventKey.MOVE, ModKey.RIGHT))) {
 					Game.getPlayer().moveRight(5);
 				}
-				else if (i == controls.get(Constant.concatKeys(EventKey.MOVE, ModKey.UP))) {
+				else if (i == heldControls.get(Constant.concatKeys(EventKey.MOVE, ModKey.UP))) {
 					Game.getPlayer().moveUp(5);
 				}
 			}
-			else {
-				
-			}
 		}
 	}
 	
-	/**
-	 * If a key is pressed and has been set by setControls(),
-	 * then that key's status is set to true.
-	 */
-	@Override
-	public void keyPressed(KeyEvent evt) {
-		Integer key = evt.getKeyCode();
-		if (status.containsKey(key)) {
-			status.put(key, true);
+	public static void processTappedKey(int key) {
+		if (key == tapControls.get(Constant.concatKeys(EventKey.EXIT, ModKey.GAME))) {
+			Game.setPaused(true);
+			Game.setRunning(false);
 		}
-	}
-	
-	/**
-	 * If a key is released and has been set by setControls(),
-	 * then that key's status is set to false.
-	 */
-	@Override
-	public void keyReleased(KeyEvent evt) {
-		Integer key = evt.getKeyCode();
-		if (status.containsKey(key)) {
-			status.put(key, false);
+		else if (key == tapControls.get(Constant.concatKeys(EventKey.PAUSE, ModKey.GAME))) {
+			Game.togglePaused();
 		}
-	}
-
-	@Override
-	public void keyTyped(KeyEvent evt) {
-		
 	}
 	
 	@Override

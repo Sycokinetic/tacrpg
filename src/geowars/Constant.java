@@ -18,7 +18,8 @@ public class Constant {
 		MOVE,
 		TURN,
 		ATTACK,
-		EXIT
+		EXIT,
+		PAUSE
 	}
 	
 	// Modifier keys for communication of actions and events

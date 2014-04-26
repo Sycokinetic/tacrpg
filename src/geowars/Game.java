@@ -10,34 +10,32 @@
 package geowars;
 
 import geowars.Constant.LifeStatus;
+import geowars.display.*;
+import geowars.display.Controller;
 import geowars.entity.Entity;
 import geowars.entity.person.*;
-import geowars.entity.world.*;
-import geowars.graphics.*;
 
-import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Toolkit;
-import java.util.ArrayList;
-import javax.swing.JFrame;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.Random;
 
-public class Game extends JFrame {
+
+public class Game {
 	// == Private attributes ==
-	private static String version = "Geowars PC v0.1";
+	private static final String VERSION = "Geowars PC v0.1";
 	private static boolean init = false;
-	private static boolean isRunning = false;
+	private static volatile boolean isRunning = false;
+	private static volatile boolean isPaused = true;
 	
-	private static DisplayPanel display;
-	private static InputListener eventListener;
-	private static Player player;
+	private static volatile Player player;
+	private static Thread windowThread;
 	
 	private double prevFrameTime;
 	private int FPSCap = 60;
 	
-	
 	// == Public attributes ==
-	public static ArrayList<Entity> entityList;
-	
+	public static List<Entity> entityList;
 	
 	// == Constructors ==
 	/**
@@ -53,47 +51,15 @@ public class Game extends JFrame {
 		
 		else {
 			init = true;
+			entityList = new CopyOnWriteArrayList<Entity>();
 			
-			entityList = new ArrayList<Entity>();
-			display = new DisplayPanel();
-			eventListener = new InputListener();
-			
-			setContentPane(display);
-			addKeyListener(eventListener);
-			addMouseListener(eventListener);
-			addMouseMotionListener(eventListener);
-			
-			setExtendedState(MAXIMIZED_BOTH);
-			setUndecorated(true);
-			setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-			setLocationRelativeTo(null);
-			setTitle(version);
-			setVisible(true);
+			windowThread = new Thread(new MainWindow());
+			windowThread.start();
 		}
 	}
 	
 	
-	// == Private methods ==
-	/**
-	 * Calculates the difference between the timestamps of the end of the
-	 * previous frame and the end of the current frame. If that difference
-	 * is less than the time specified by the provided limit,
-	 * then sleeps for the appropriate number of microseconds.
-	 */
-	private void frameCap() {
-		double curTime = System.nanoTime();
-		double sleepTime = (1_000_000_000/FPSCap - (curTime - prevFrameTime)) / 1_000_000;
-		if (sleepTime > 0) {
-			try {
-                Thread.sleep((int)sleepTime);
-            } catch (InterruptedException e) {
-                System.out.println("Thread Interrupted");
-            }
-		}
-		
-		prevFrameTime = curTime;
-	}
-	
+	// == Private methods ==	
 	/**
 	 * Identifies collision by checking the radii of the circles inscribed in
 	 * the image of each entity. If the distance between the center of each
@@ -117,20 +83,39 @@ public class Game extends JFrame {
 		}
 	}
 	
+	private void frameCap() {
+		double curTime = System.nanoTime();
+		double sleepTime = (1_000_000_000/FPSCap - (curTime - prevFrameTime)) / 1_000_000;
+		if (sleepTime > 0) {
+			try {
+                Thread.sleep((int)sleepTime);
+            } catch (InterruptedException e) {
+                System.out.println("Thread Interrupted");
+            }
+		}
+		//System.out.println(1_000_000_000/(curTime - prevFrameTime));
+		
+		prevFrameTime = curTime;
+	}
+	
 	
 	// == Public Methods ==
 	/**
 	 * @return	the list of all entities in the game
 	 */
-	public static ArrayList<Entity> getEntityList() {
+	public static synchronized List<Entity> getEntityList() {
 		return entityList;
 	}
 	
 	/**
 	 * @return	the game's player entity
 	 */
-	public static Player getPlayer() {
+	public static synchronized Player getPlayer() {
 		return player;
+	}
+	
+	public static String getVersion() {
+		return VERSION;
 	}
 	
 	/**
@@ -140,41 +125,53 @@ public class Game extends JFrame {
 		if (init) {
 			isRunning = true;
 			
+//			winSize = this.getContentPane().getSize();
+//			if (this.getExtendedState() == JFrame.MAXIMIZED_BOTH) {
+//				winSize = Toolkit.getDefaultToolkit().getScreenSize();
+//			}
+			
 			player = new Player();
+//			player = new Player(winSize.width/2 - 50, winSize.height/2 - 50);
+			
 			entityList.add(player);
 			
-			entityList.add(new Nonplayer(1300, 120));
-			entityList.add(new Nonplayer(700, 800));
-			entityList.add(new Nonplayer(400, 200));
+			Random randGen = new Random();
 			
-			prevFrameTime = System.nanoTime();
-			
-			while(isRunning) {
-				InputListener.processKeys();
-				
-				for (Entity i: entityList) {
-					i.update();
-					if (i != player && sphereCollide(player, i)) {
-						i.setAlive(LifeStatus.DEAD);
-					}
-				}
-				
-				for (int i = 0; i < entityList.size(); i++) {
-					if (entityList.get(i).getAlive() == LifeStatus.DEAD) {
-						entityList.remove(i);
-						i--;
-					}
-				}
-				
-				this.repaint();
-				frameCap();
+			for (int i = 0; i < 100; i++) {
+				entityList.add(new Nonplayer(randGen.nextInt(1920), randGen.nextInt(1080)));
 			}
 			
-			this.dispose();
+			while(isRunning) {
+				Controller.processKeys();
+				
+//				if (!isPaused) {
+//					this.setContentPane(gameFrame);
+//					this.revalidate();
+//				}
+				
+				while(!isPaused) {
+					Controller.processKeys();
+					
+					for (Entity i: entityList) {
+						i.update();
+						
+						if (i != player && sphereCollide(player, i)) {
+							i.setAlive(LifeStatus.DEAD);
+						}
+						
+						if (i.getAlive() == LifeStatus.DEAD) {
+							entityList.remove(i);
+						}
+					}
+					
+					prevFrameTime = System.nanoTime();
+					frameCap();
+				}
+			}
 			shutdown();
 		}
 		else {
-			System.out.println("Throw exception. Game has already been shutdown.");
+			System.out.println("Throw exception. Game has already been shut down.");
 		}
 	}
 	
@@ -183,32 +180,45 @@ public class Game extends JFrame {
 	 * @param 	b	boolean where true means the game will cycle through
 	 * 				its primary loop.
 	 */
-	public static void setRunning(boolean b) {
+	public static synchronized void setRunning(boolean b) {
 		isRunning = b;
+	}
+	
+	public static synchronized void setPaused(boolean b) {
+		isPaused = b;
+	}
+	
+	public static synchronized void togglePaused() {
+		if (isPaused) {
+			isPaused = false;
+		}
+		else {
+			isPaused = true;
+		}
+	}
+	
+	public static boolean isPaused() {
+		return isPaused;
+	}
+	
+	public static boolean isRunning() {
+		return isRunning;
 	}
 	
 	/**
 	 * Called after Game instance is completed and resets static variables
 	 * in preparation for new Game instance.
 	 */
-	private static void shutdown() {
-		eventListener = null;
-		display = null;
+	private static void shutdown() {		
+		try {
+			windowThread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
 		player = null;
 		entityList = null;
 		
 		init = false;
-	}
-	
-	
-	// == Main method ==
-	public static void main(String[] args) {
-		try {
-			Game game = new Game();
-			game.run();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-			System.exit(0);
-		}
 	}
 }
