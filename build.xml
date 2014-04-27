@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="geowars" basedir="." default="jar">
+	<property name="src.dir" value="src/geowars/" />
+	<property name="build.dir" value="build/" />
+	<property name="classes.dir" value="build/classes/" />
+	<property name="jar.dir" value="build/jar/" />
+	
+	<target name="clean" description="Delete all generated files">
+		<delete dir="${build.dir}" failonerror="false" />
+	</target>
+
+	<target name="build" description="Compile sources" depends="clean">
+		<mkdir dir="${classes.dir}" />
+		<javac srcdir="${src.dir}" destdir="${classes.dir}" debug="true" />
+		
+		<copy todir="${classes.dir}/res/">
+			<fileset dir="res/" />
+		</copy>
+	</target>
+
+	<target name="jar" description="Archive sources into jar" depends="build">
+		<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
+			<manifest>
+				<attribute name="Main-Class" value="geowars.Launcher" />
+			</manifest>			
+		</jar>
+	</target>
+
+	<target name="run" description="Run jar file" depends="jar">
+		<java jar="${jar.dir}/${ant.project.name}.jar" fork="true" />
+	</target>
+	
+	<target name="debug" description="Run jar file" depends="jar">
+		<java jar="${jar.dir}/${ant.project.name}.jar" fork="true">
+			<jvmarg value="-Xdebug" />
+			<jvmarg value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5432" />
+		</java>
+	</target>
+	
+</project>
