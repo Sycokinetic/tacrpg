@@ -5,7 +5,7 @@ public class Launcher {
 		try {
 			Game game = new Game();
 			game.run();
-		} catch (InstantiationException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
 		}

@@ -16,7 +16,8 @@ public class MainMenuPanel extends JPanel {
 		@Override
 		public void actionPerformed(ActionEvent event) {
 			if (event.getSource() == launch) {
-				Game.setPaused(false);
+				Game.togglePaused();
+				System.out.println(Game.isPaused());
 			}
 			else if (event.getSource() == exit) {
 				Game.setPaused(true);

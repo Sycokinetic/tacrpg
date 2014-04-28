@@ -2,8 +2,6 @@ package geowars.display;
 
 import geowars.Constant;
 import geowars.Game;
-import geowars.Constant.EventKey;
-import geowars.Constant.ModKey;
 import geowars.display.Controller.UserAction;
 import geowars.entity.Entity;
 
@@ -11,6 +9,7 @@ import java.awt.Dimension;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 
@@ -26,21 +25,23 @@ public class MainWindow extends JFrame implements Runnable {
 	private GraphicsDevice display;
 	
 	private GamePanel gameFrame;
-//	private static InputListener eventListener;
 	private Controller gameListener;
 	private Controller menuListener;
 	private Point camPos;
-	private Dimension winSize;
+	private Rectangle winSize;
 	
 	private double prevFrameTime;
 	private int FPSCap = 60;
+	private int frameCount = 0;
+	private int timeElapse = 0;
+	
 	
 	private boolean isRunning;
 	private boolean isPaused;
-	private List<Entity> entityList;
+	private boolean fullscreen;
 	
 	
-	// == Constructors
+	// == Constructors ==
 	public MainWindow() {
 		gameFrame = new GamePanel();
 		MainMenuPanel menuFrame = new MainMenuPanel();
@@ -49,26 +50,58 @@ public class MainWindow extends JFrame implements Runnable {
 		setControls();
 		setContentPane(menuFrame);
 		
-//		KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-//		eventListener = new InputListener();
-//		manager.addKeyEventDispatcher(eventListener);
+		display = getGraphicsConfiguration().getDevice();
+		winSize = getGraphicsConfiguration().getBounds();
 		
-		display = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-		winSize = Toolkit.getDefaultToolkit().getScreenSize();
-		
-		setSize(winSize.width, winSize.height);
-		setUndecorated(true);
-//		setSize(400, 400);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setLocationRelativeTo(null);
 		setTitle(VERSION);
 		
-		display.setFullScreenWindow(this);
-//		setVisible(true);
+		setFullscreen(false);
 	}
 	
 	
 	// == Private methods ==
+	private void toggleFullscreen() {
+		if (fullscreen) {
+			this.dispose();
+			
+			display.setFullScreenWindow(null);
+			setUndecorated(false);
+			setSize(400, 400);
+			setVisible(true);
+			
+			fullscreen = false;
+		}
+		else {
+			this.dispose();
+			
+			setSize(winSize.width, winSize.height);
+			setUndecorated(true);
+			display.setFullScreenWindow(this);
+			
+			fullscreen = true;
+		}
+	}
+	
+	// FIX TO ALLOW MULTIPLE CALLS
+	private void setFullscreen(boolean b) {
+		fullscreen = b;
+		
+		if (fullscreen) {
+			setBounds(getGraphicsConfiguration().getBounds());
+			setSize(winSize.width, winSize.height);
+			setUndecorated(true);
+			display.setFullScreenWindow(this);
+		}
+		else {
+			display.setFullScreenWindow(null);
+			setUndecorated(false);
+			setSize(400, 400);
+			setVisible(true);
+		}
+	}
+	
 	/**
 	 * Calculates the difference between the timestamps of the end of the
 	 * previous frame and the end of the current frame. If that difference
@@ -80,61 +113,83 @@ public class MainWindow extends JFrame implements Runnable {
 		double sleepTime = (1_000_000_000/FPSCap - (curTime - prevFrameTime)) / 1_000_000;
 		if (sleepTime > 0) {
 			try {
+//				Thread.sleep(0);
                 Thread.sleep((int)sleepTime);
             } catch (InterruptedException e) {
                 System.out.println("Thread Interrupted");
             }
 		}
-		//System.out.println(1_000_000_000/(curTime - prevFrameTime));
+		
+		frameCount++;
+		curTime = System.nanoTime();
+		timeElapse += curTime - prevFrameTime;
+		if (frameCount % 60 == 0) {
+			int fps = (int)(1_000_000_000 * ((double)frameCount / timeElapse));
+			
+//			System.out.println("UPS: " + Game.getUPS() + ", FPS: " + fps);
+			
+			frameCount = 0;
+			timeElapse = 0;
+		}
 		
 		prevFrameTime = curTime;
 	}
 	
 	private void setControls() {
-		gameListener.addAction(KeyEvent.VK_DOWN, new UserAction(Constant.concatKeys(EventKey.MOVE, ModKey.DOWN), true, true) {
+		gameListener.addAction(KeyEvent.VK_DOWN, new UserAction(Constant.MOVE + Constant.DOWN, true, true) {
 			public void action() {
 				if (!Game.isPaused()) {
-					Game.getPlayer().moveDown(5);
+					Game.getPlayer().moveDown();
 				}
 			}
 		});
-		gameListener.addAction(KeyEvent.VK_UP, new UserAction(Constant.concatKeys(EventKey.MOVE, ModKey.UP), true, true) {
+		gameListener.addAction(KeyEvent.VK_UP, new UserAction(Constant.MOVE + Constant.UP, true, true) {
 			public void action() {
 				if (!Game.isPaused()) {
-					Game.getPlayer().moveUp(5);
+					Game.getPlayer().moveUp();
 				}
 			}
 		});
-		gameListener.addAction(KeyEvent.VK_LEFT, new UserAction(Constant.concatKeys(EventKey.MOVE, ModKey.LEFT), true, true) {
+		gameListener.addAction(KeyEvent.VK_LEFT, new UserAction(Constant.MOVE + Constant.LEFT, true, true) {
 			public void action() {
 				if (!Game.isPaused()) {
-					Game.getPlayer().moveLeft(5);
+					Game.getPlayer().moveLeft();
 				}
 			}
 		});
-		gameListener.addAction(KeyEvent.VK_RIGHT, new UserAction(Constant.concatKeys(EventKey.MOVE, ModKey.RIGHT), true, true) {
+		gameListener.addAction(KeyEvent.VK_RIGHT, new UserAction(Constant.MOVE + Constant.RIGHT, true, true) {
 			public void action() {
 				if (!Game.isPaused()) {
-					Game.getPlayer().moveRight(5);
+					Game.getPlayer().moveRight();
 				}
 			}
 		});
-		gameListener.addAction(KeyEvent.VK_ESCAPE, new UserAction(Constant.concatKeys(EventKey.EXIT, ModKey.GAME), true, false) {
+		gameListener.addAction(KeyEvent.VK_ESCAPE, new UserAction(Constant.EXIT + Constant.GAME, true, false) {
 			public void action() {
 				Game.setPaused(true);
 				Game.setRunning(false);
 			}
 		});
-		gameListener.addAction(KeyEvent.VK_P, new UserAction(Constant.concatKeys(EventKey.PAUSE, ModKey.GAME), true, false) {
+		gameListener.addAction(KeyEvent.VK_P, new UserAction(Constant.PAUSE + Constant.GAME, true, false) {
 			public void action() {
 				Game.togglePaused();
 			}
 		});
+		gameListener.addAction(KeyEvent.VK_F, new UserAction(Constant.EXIT + Constant.GAME, true, false) {
+			public void action() {
+				toggleFullscreen();
+			}
+		});
 		
-		menuListener.addAction(KeyEvent.VK_ESCAPE, new UserAction(Constant.concatKeys(EventKey.EXIT, ModKey.GAME), true, false) {
+		menuListener.addAction(KeyEvent.VK_ESCAPE, new UserAction(Constant.EXIT + Constant.GAME, true, false) {
 			public void action() {
 				Game.setPaused(true);
 				Game.setRunning(false);
+			}
+		});
+		menuListener.addAction(KeyEvent.VK_F, new UserAction(Constant.EXIT + Constant.GAME, true, false) {
+			public void action() {
+				toggleFullscreen();
 			}
 		});
 	}
@@ -142,22 +197,15 @@ public class MainWindow extends JFrame implements Runnable {
 
 	@Override
 	public void run() {
-		isRunning = true;
-		
-		while (isRunning) {
-			isRunning = Game.isRunning();
-			isPaused = Game.isPaused();
-			
-			if (!isPaused) {
+		while (Game.isRunning()) {
+			if (!Game.isPaused()) {
 				this.setContentPane(gameFrame);
 				this.revalidate();
 			}
 			
-			while (!isPaused) {
+			while (!Game.isPaused()) {
 				repaint();
-				isPaused = Game.isPaused();
 				
-				prevFrameTime = System.nanoTime();
 				frameCap();
 			}
 		}

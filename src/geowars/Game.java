@@ -3,15 +3,12 @@
  * Author: Sycokinetic
  * 
  * Notes:
- * - Contains main method and is the entry point for the application
  * - Only one Game instance per application can exist.
  */
 
 package geowars;
 
-import geowars.Constant.LifeStatus;
 import geowars.display.*;
-import geowars.display.Controller;
 import geowars.entity.Entity;
 import geowars.entity.person.*;
 
@@ -31,8 +28,14 @@ public class Game {
 	private static volatile Player player;
 	private static Thread windowThread;
 	
-	private double prevFrameTime;
-	private int FPSCap = 60;
+	private static double prevFrameTime;
+	private static double curFrameTime;
+	private static int FPSCap = 60;
+	private static int tickTarget = 5;					// Base UPS Rate of n ms per update
+	
+	private static int tickCount = 0;
+	private static int timeElapse = 0;
+	private static int ups = 0;
 	
 	// == Public attributes ==
 	public static List<Entity> entityList;
@@ -83,19 +86,30 @@ public class Game {
 		}
 	}
 	
-	private void frameCap() {
+	private void updateCap() {
 		double curTime = System.nanoTime();
-		double sleepTime = (1_000_000_000/FPSCap - (curTime - prevFrameTime)) / 1_000_000;
+		double dt = curTime - prevFrameTime;
+		double sleepTime = tickTarget*1_000_000 - dt;
+		
 		if (sleepTime > 0) {
 			try {
-                Thread.sleep((int)sleepTime);
+//				Thread.sleep(0);
+                Thread.sleep((long)sleepTime/1_000_000, (int)sleepTime % 1_000_000);
             } catch (InterruptedException e) {
                 System.out.println("Thread Interrupted");
             }
 		}
-		//System.out.println(1_000_000_000/(curTime - prevFrameTime));
 		
-		prevFrameTime = curTime;
+		tickCount++;
+		curTime = System.nanoTime();
+		timeElapse += curTime - prevFrameTime;
+		if (tickCount % 50 == 0) {
+			ups = (int)(1_000_000_000 * ((double)tickCount / timeElapse));
+			tickCount = 0;
+			timeElapse = 0;
+		}
+		
+		curFrameTime = curTime;
 	}
 	
 	
@@ -118,17 +132,37 @@ public class Game {
 		return VERSION;
 	}
 	
+	public static double getPrevFrameTime() {
+		return prevFrameTime;
+	}
+	
+	public static double getCurFrameTime() {
+		return curFrameTime;
+	}
+	
+	public static int getTickTarget() {
+		return tickTarget;
+	}
+	
+	public static int getTickCount() {
+		return tickCount;
+	}
+	
+	public static int getTimeElapse() {
+		return timeElapse;
+	}
+	
+	public static int getUPS() {
+		return ups;
+	}
+	
 	/**
 	 * Run game's primary loop if instance has not been shutdown.
+	 * @throws Exception 
 	 */
-	public void run() {
+	public void run() throws Exception {
 		if (init) {
 			isRunning = true;
-			
-//			winSize = this.getContentPane().getSize();
-//			if (this.getExtendedState() == JFrame.MAXIMIZED_BOTH) {
-//				winSize = Toolkit.getDefaultToolkit().getScreenSize();
-//			}
 			
 			player = new Player();
 //			player = new Player(winSize.width/2 - 50, winSize.height/2 - 50);
@@ -144,34 +178,35 @@ public class Game {
 			while(isRunning) {
 				Controller.processKeys();
 				
-//				if (!isPaused) {
-//					this.setContentPane(gameFrame);
-//					this.revalidate();
-//				}
-				
 				while(!isPaused) {
 					Controller.processKeys();
+					curFrameTime = System.nanoTime();
 					
 					for (Entity i: entityList) {
 						i.update();
 						
 						if (i != player && sphereCollide(player, i)) {
-							i.setAlive(LifeStatus.DEAD);
+							i.setAlive(Constant.DEAD);
 						}
 						
-						if (i.getAlive() == LifeStatus.DEAD) {
+						if (i.getAlive() == Constant.DEAD) {
 							entityList.remove(i);
 						}
 					}
 					
+//					double fps = 1_000_000_000/(System.nanoTime() - prevFrameTime);
+//					framecount++;
+//					avgfps += fps;
+//					System.out.println(1_000_000_000/(System.nanoTime() - prevFrameTime));
 					prevFrameTime = System.nanoTime();
-					frameCap();
+					updateCap();
 				}
+//				System.out.println("A: " + avgfps/framecount);
 			}
 			shutdown();
 		}
 		else {
-			System.out.println("Throw exception. Game has already been shut down.");
+			throw new Exception("Game has already been shut down.");
 		}
 	}
 	
@@ -188,7 +223,7 @@ public class Game {
 		isPaused = b;
 	}
 	
-	public static synchronized void togglePaused() {
+	public static void togglePaused() {
 		if (isPaused) {
 			isPaused = false;
 		}

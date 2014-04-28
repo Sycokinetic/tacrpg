@@ -1,7 +1,6 @@
 package geowars.entity.person;
 
 import geowars.Constant;
-import geowars.Constant.EventKey;
 import geowars.Game;
 
 import java.awt.Dimension;
@@ -30,11 +29,12 @@ public class Nonplayer extends Person {
 		this.TILESIZE = new Dimension(19, 19);
 		this.SHEETWIDTH = 1;
 		
-		this.KEYVALS.put(0, Constant.concatKeys(EventKey.MAIN));
+		this.KEYVALS.put(0, Constant.MAIN);
 		
 		this.loadSheet();
 		this.loadAnims();
 		
-		this.curKey = Constant.concatKeys(EventKey.MAIN);
+		this.curKey = Constant.MAIN;
+		this.moveRate = 40;
 	}
 }

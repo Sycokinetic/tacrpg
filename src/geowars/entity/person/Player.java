@@ -29,11 +29,12 @@ public class Player extends Person {
 		this.TILESIZE = new Dimension(99, 99);
 		this.SHEETWIDTH = 4;
 		
-		this.KEYVALS.put(0, Constant.concatKeys(EventKey.MAIN));
-		
+		this.KEYVALS.put(0, Constant.MAIN);
+				
 		this.loadSheet();
 		this.loadAnims();
 		
-		this.curKey = Constant.concatKeys(EventKey.MAIN);
+		this.curKey = Constant.MAIN;
+		this.moveRate = 100;
 	}
 }

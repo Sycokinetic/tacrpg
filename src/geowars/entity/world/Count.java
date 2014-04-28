@@ -1,8 +1,6 @@
 package geowars.entity.world;
 
 import geowars.Constant;
-import geowars.Constant.EventKey;
-import geowars.Constant.ModKey;
 
 import java.awt.Dimension;
 import java.awt.Point;
@@ -40,11 +38,11 @@ public class Count extends WorldObject {
 		this.TILESIZE = new Dimension(100, 100);
 		this.SHEETWIDTH = 10;
 		
-		this.KEYVALS.put(0, Constant.concatKeys(EventKey.MAIN, ModKey.NULL));
+		this.KEYVALS.put(0, Constant.MAIN);
 		
 		this.loadSheet();
 		this.loadAnims();
 		
-		this.curKey = Constant.concatKeys(EventKey.MAIN, ModKey.NULL);
+		this.curKey = Constant.MAIN;
 	}
 }

@@ -1,7 +1,7 @@
 package geowars.entity;
 
 import geowars.Game;
-import geowars.Constant.LifeStatus;
+import geowars.Constant;
 import geowars.display.Animation;
 import geowars.resource.SpriteLibrary;
 
@@ -29,10 +29,13 @@ public abstract class Entity {
 	protected Point curPos;
 	protected double curAngle;
 	
-	protected LifeStatus lifeStatus;
+	protected String lifeStatus;
 	
-	private double err;
-	private Direction vectorQuad;
+	protected double pixelErr;
+	protected Direction vectorQuad;
+	
+	protected int moveRate;		// pixels per second
+	protected double[] moveErr;
 	
 	// == Constructors ==
 	/**
@@ -51,10 +54,12 @@ public abstract class Entity {
 		this.curKey = null;
 		this.curPos = new Point(0, 0);
 		
-		this.lifeStatus = LifeStatus.ALIVE;
+		this.lifeStatus = Constant.ALIVE;
 		
-		this.err = 0;
+		this.pixelErr = 0;
 		this.vectorQuad = null;
+		this.moveRate = 0;
+		this.moveErr = new double[4];
 		
 		this.loadData();
 	}
@@ -78,9 +83,9 @@ public abstract class Entity {
 		this.curKey = null;
 		this.curPos = new Point(x, y);
 		
-		this.lifeStatus = LifeStatus.ALIVE;
+		this.lifeStatus = Constant.ALIVE;
 		
-		this.err = 0;
+		this.pixelErr = 0;
 		this.vectorQuad = null;
 		
 		this.loadData();
@@ -104,9 +109,9 @@ public abstract class Entity {
 		this.curKey = null;
 		this.curPos = new Point(0, 0);
 		
-		this.lifeStatus = LifeStatus.ALIVE;
+		this.lifeStatus = Constant.ALIVE;
 		
-		this.err = 0;
+		this.pixelErr = 0;
 		this.vectorQuad = null;
 		
 		this.loadData();
@@ -138,11 +143,11 @@ public abstract class Entity {
 		double dy = this.getCenter().y - p.y;
 		
 		if (dx == 0 && dy == 0) {
-			this.err = 0;
+			this.pixelErr = 0;
 			// If this is at player, do nothing
 		}
 		else if (dx == 0 && dy != 0) {
-			this.err = 0;
+			this.pixelErr = 0;
 			// If this is below player, move up
 			if (dy > 0) {
 				this.curPos.y -= 1;
@@ -152,7 +157,7 @@ public abstract class Entity {
 			}
 		}
 		else if (dx != 0 && dy == 0) {
-			this.err = 0;
+			this.pixelErr = 0;
 			// If this is right of player, move left
 			if (dx > 0) {
 				this.curPos.x += 1;
@@ -166,12 +171,12 @@ public abstract class Entity {
 
 			if (Math.abs(dx) >= Math.abs(dy)) {
 				m = dy/dx;
-				this.err += m;
+				this.pixelErr += m;
 				
 				if (m > 0) {
 					if (this.vectorQuad != Direction.UP){
 						this.vectorQuad = Direction.UP;
-						this.err = m;
+						this.pixelErr = m;
 					}
 					
 					if (dx > 0) {
@@ -182,20 +187,20 @@ public abstract class Entity {
 					}
 					
 					if (dy > 0) {
-						this.curPos.y -= Math.floor(this.err);
+						this.curPos.y -= Math.floor(this.pixelErr);
 					}
 					else {
-						this.curPos.y += Math.floor(this.err);
+						this.curPos.y += Math.floor(this.pixelErr);
 					}
 					
-					if (this.err >= 1) {
-						this.err -= 1;
+					if (this.pixelErr >= 1) {
+						this.pixelErr -= 1;
 					}
 				}
 				else {
 					if (this.vectorQuad != Direction.DOWN) {
 						this.vectorQuad = Direction.DOWN;
-						this.err = m;
+						this.pixelErr = m;
 					}
 					
 					if (dx > 0) {
@@ -206,25 +211,25 @@ public abstract class Entity {
 					}
 					
 					if (dy > 0) {
-						this.curPos.y += Math.ceil(this.err);
+						this.curPos.y += Math.ceil(this.pixelErr);
 					}
 					else {
-						this.curPos.y -= Math.ceil(this.err);
+						this.curPos.y -= Math.ceil(this.pixelErr);
 					}
 					
-					if (this.err <= -1) {
-						this.err += 1;
+					if (this.pixelErr <= -1) {
+						this.pixelErr += 1;
 					}
 				}
 			}
 			else {
 				m = dx/dy;
-				this.err += m;
+				this.pixelErr += m;
 				
 				if (m > 0) {
 					if (this.vectorQuad != Direction.RIGHT) {
 						this.vectorQuad = Direction.RIGHT;
-						this.err = m;
+						this.pixelErr = m;
 					}
 					
 					if (dy > 0) {
@@ -235,20 +240,20 @@ public abstract class Entity {
 					}
 					
 					if (dx > 0) {
-						this.curPos.x += Math.floor(this.err);
+						this.curPos.x += Math.floor(this.pixelErr);
 					}
 					else {
-						this.curPos.x -= Math.floor(this.err);
+						this.curPos.x -= Math.floor(this.pixelErr);
 					}
 					
-					if (this.err >= 1) {
-						this.err -= 1;
+					if (this.pixelErr >= 1) {
+						this.pixelErr -= 1;
 					}
 				}
 				else {
 					if (this.vectorQuad != Direction.LEFT) {
 						this.vectorQuad = Direction.LEFT;
-						this.err = m;
+						this.pixelErr = m;
 					}
 					
 					if (dx > 0) {
@@ -259,14 +264,14 @@ public abstract class Entity {
 					}
 					
 					if (dy > 0) {
-						this.curPos.x += Math.ceil(this.err);
+						this.curPos.x += Math.ceil(this.pixelErr);
 					}
 					else {
-						this.curPos.x -= Math.ceil(this.err);
+						this.curPos.x -= Math.ceil(this.pixelErr);
 					}
 					
-					if (this.err <= -1) {
-						this.err += 1;
+					if (this.pixelErr <= -1) {
+						this.pixelErr += 1;
 					}
 				}
 			}
@@ -277,7 +282,7 @@ public abstract class Entity {
 	/**
 	 * @return	the alive/dead status of entity	
 	 */
-	public LifeStatus getAlive() {
+	public String getAlive() {
 		return this.lifeStatus;
 	}
 	
@@ -360,7 +365,7 @@ public abstract class Entity {
 	 * 
 	 * @param l	new LifeStatus to store
 	 */
-	public void setAlive(LifeStatus l) {
+	public void setAlive(String l) {
 		this.lifeStatus = l;
 	}
 	
