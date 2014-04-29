@@ -46,7 +46,7 @@ public class Game {
 
 	private static List<Entity> entityList;
 
-	private static volatile String status;
+	private static String status;
 	private static volatile HashMap<String, JPanel> panelSet;
 
 	// == Constructors ==
@@ -71,7 +71,7 @@ public class Game {
 			panelSet.put(Constant.PLAY, new GamePanel());
 			panelSet.put(Constant.MAIN, new MainMenuPanel());
 			
-			status = Constant.PLAY;
+			status = Constant.MAIN;
 
 			windowThread = new Thread(new MainWindow());
 		}
@@ -185,6 +185,10 @@ public class Game {
 		return panelSet.get(status);
 	}
 
+	public static String getStatus() {
+		return new String(status);
+	}
+	
 	/**
 	 * Run game's primary loop if instance has not been shutdown.
 	 * 
@@ -210,9 +214,7 @@ public class Game {
 			while (isRunning) {
 				Controller.processKeys();
 
-				while (!isPaused) {
-					Controller.processKeys();
-
+				if (!isPaused) {
 					for (Entity i : entityList) {
 						i.update();
 
@@ -224,11 +226,11 @@ public class Game {
 							entityList.remove(i);
 						}
 					}
-
-					updateCap();
-					tickMonitor();
-					prevFrameTime = System.nanoTime();
 				}
+				
+				updateCap();
+				tickMonitor();
+				prevFrameTime = System.nanoTime();
 			}
 			shutdown();
 		} else {
@@ -251,20 +253,20 @@ public class Game {
 		isPaused = b;
 		
 		if (b) {
-//			status = Constant.PAUSE;
+			status = Constant.PAUSE;
 		}
 		else {
-//			status = Constant.PLAY;
+			status = Constant.PLAY;
 		}
 	}
 
 	public static void togglePaused() {
 		if (isPaused) {
 			isPaused = false;
-//			status = Constant.PLAY;
+			status = Constant.PLAY;
 		} else {
 			isPaused = true;
-//			status = Constant.PAUSE;
+			status = Constant.PAUSE;
 		}
 	}
 

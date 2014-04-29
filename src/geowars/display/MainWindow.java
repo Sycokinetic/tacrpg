@@ -48,6 +48,7 @@ public class MainWindow extends JFrame implements Runnable {
 	private boolean fullscreen;
 
 	private JPanel curPanel;
+	private String status;
 	
 	// == Constructors ==
 	public MainWindow() {
@@ -163,73 +164,27 @@ public class MainWindow extends JFrame implements Runnable {
 				Game.togglePaused();
 			}
 		});
-
-//		gameListener.addAction(KeyEvent.VK_DOWN, new UserAction(Constant.MOVE + Constant.DOWN, true, true) {
-//			public void action() {
-//				if (!Game.isPaused()) {
-//					Game.getPlayer().moveDown();
-//				}
-//			}
-//		});
-//		gameListener.addAction(KeyEvent.VK_UP, new UserAction(Constant.MOVE + Constant.UP, true, true) {
-//			public void action() {
-//				if (!Game.isPaused()) {
-//					Game.getPlayer().moveUp();
-//				}
-//			}
-//		});
-//		gameListener.addAction(KeyEvent.VK_LEFT, new UserAction(Constant.MOVE + Constant.LEFT, true, true) {
-//			public void action() {
-//				if (!Game.isPaused()) {
-//					Game.getPlayer().moveLeft();
-//				}
-//			}
-//		});
-//		gameListener.addAction(KeyEvent.VK_RIGHT, new UserAction(Constant.MOVE + Constant.RIGHT, true, true) {
-//			public void action() {
-//				if (!Game.isPaused()) {
-//					Game.getPlayer().moveRight();
-//				}
-//			}
-//		});
-//		gameListener.addAction(KeyEvent.VK_ESCAPE, new UserAction(Constant.EXIT + Constant.GAME, true, false) {
-//			public void action() {
-//				Game.setPaused(true);
-//				Game.setRunning(false);
-//			}
-//		});
-//		gameListener.addAction(KeyEvent.VK_P, new UserAction(Constant.PAUSE + Constant.GAME, true, false) {
-//			public void action() {
-//				Game.togglePaused();
-//			}
-//		});
-//		
-//		
-//		menuListener.addAction(KeyEvent.VK_ESCAPE, new UserAction(Constant.EXIT + Constant.GAME, true, false) {
-//			public void action() {
-//				Game.setPaused(true);
-//				Game.setRunning(false);
-//			}
-//		});
 	}
 
-	// Remove panel swap. Fails if toggle occurs at wrong point
 	@Override
 	public void run() {
+		status = Game.getStatus();
 		curPanel = Game.getCurPanel();
 		hostPanel.add(curPanel, BorderLayout.CENTER);
 		this.revalidate();
-
+		
 		while (Game.isRunning()) {
-			if (curPanel != Game.getCurPanel()) {
+			if (status.compareTo(Game.getStatus()) != 0) {
+				status = Game.getStatus();
+				
 				hostPanel.remove(curPanel);
 				curPanel = Game.getCurPanel();
 				hostPanel.add(curPanel, BorderLayout.CENTER);
-//				this.setContentPane(gamePanel);
+								
 				this.revalidate();
 			}
 
-			if (!Game.isPaused()) {
+			if (status.compareTo(Constant.PLAY) == 0) {
 				repaint();
 			}
 			frameCap();
