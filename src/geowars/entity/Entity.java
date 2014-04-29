@@ -2,7 +2,7 @@ package geowars.entity;
 
 import geowars.Game;
 import geowars.Constant;
-import geowars.display.Animation;
+import geowars.resource.Animation;
 import geowars.resource.SpriteLibrary;
 
 import java.awt.image.BufferedImage;

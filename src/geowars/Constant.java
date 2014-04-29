@@ -24,6 +24,7 @@ public class Constant {
 	public static final String MAIN = "MAIN ";
 	public static final String MOVE = "MOVE ";
 	public static final String PAUSE = "PAUSE ";
+	public static final String PLAY = "PLAY ";
 	public static final String RIGHT = "RIGHT ";
 	public static final String TURN = "TURN ";
 	public static final String UP = "UP ";

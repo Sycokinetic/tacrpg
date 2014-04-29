@@ -1,6 +1,5 @@
-package geowars.display;
+package geowars.resource;
 
-import geowars.resource.SpriteLibrary;
 
 import java.awt.image.BufferedImage;
 
