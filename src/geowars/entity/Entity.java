@@ -87,6 +87,8 @@ public abstract class Entity {
 		
 		this.pixelErr = 0;
 		this.vectorQuad = null;
+		this.moveRate = 0;
+		this.moveErr = new double[4];
 		
 		this.loadData();
 	}
@@ -113,6 +115,8 @@ public abstract class Entity {
 		
 		this.pixelErr = 0;
 		this.vectorQuad = null;
+		this.moveRate = 0;
+		this.moveErr = new double[4];
 		
 		this.loadData();
 	}
@@ -138,6 +142,62 @@ public abstract class Entity {
 		}
 	}
 	
+	// BUG: IS STILL HIGHLY SENSITIVE TO UPS, POSSIBLY RELATED TO
+	// GAME.UPDATECAP() STABILITY
+	protected void moveDown() {
+		// setCurAnim(Constant.concatKeys(EventKey.MOVE, ModKey.DOWN));
+//		double dt = Game.getPrevTickLength();
+//		double n = (this.moveRate * dt) / 1_000_000_000;
+		double n = (double) this.moveRate * Game.getPrevTickLength() / 1_000_000_000;
+
+//		System.out.println(n);
+
+		this.moveErr[0] += n;
+		for (; this.moveErr[0] > 1; this.moveErr[0]--) {
+			this.curPos.y += 1;
+		}
+
+		this.ANIMLIST.get(this.curKey).cycle();
+	}
+
+	protected void moveLeft() {
+		// setCurAnim(Constant.concatKeys(EventKey.MOVE, ModKey.LEFT));
+		double n = (double) this.moveRate * Game.getPrevTickLength() / 1_000_000_000;
+
+		this.moveErr[1] += n;
+		for (; this.moveErr[1] > 1; this.moveErr[1]--) {
+			this.curPos.x -= 1;
+		}
+
+		this.ANIMLIST.get(this.curKey).cycle();
+	}
+
+	protected void moveRight() {
+		// setCurAnim(Constant.concatKeys(EventKey.MOVE, ModKey.RIGHT));
+		double n = (double) this.moveRate * Game.getPrevTickLength() / 1_000_000_000;
+
+		this.moveErr[2] += n;
+		for (; this.moveErr[2] > 1; this.moveErr[2]--) {
+			this.curPos.x += 1;
+		}
+
+		this.ANIMLIST.get(this.curKey).cycle();
+	}
+
+	protected void moveUp() {
+		// setCurAnim(Constant.concatKeys(EventKey.MOVE, ModKey.UP));
+		double n = (double) this.moveRate * Game.getPrevTickLength() / 1_000_000_000;
+
+		this.moveErr[3] += n;
+		if (this.moveErr[3] >= 1) {
+			for (; this.moveErr[3] > 1; this.moveErr[3]--) {
+				this.curPos.y -= 1;
+			}
+		}
+
+		this.ANIMLIST.get(this.curKey).cycle();
+	}
+	
 	protected void moveTowardPoint(Point p) {
 		double dx = p.x - this.getCenter().x;
 		double dy = this.getCenter().y - p.y;
@@ -150,29 +210,30 @@ public abstract class Entity {
 			this.pixelErr = 0;
 			// If this is below player, move up
 			if (dy > 0) {
-				this.curPos.y -= 1;
+				this.moveUp();
 			}
 			else {
-				this.curPos.y += 1;
+				this.moveDown();
 			}
 		}
 		else if (dx != 0 && dy == 0) {
 			this.pixelErr = 0;
 			// If this is right of player, move left
 			if (dx > 0) {
-				this.curPos.x += 1;
+				this.moveRight();
 			}
 			else {
-				this.curPos.x -= 1;
+				this.moveLeft();
 			}
 		}
 		else {
 			double m = 0;
-
+				
 			if (Math.abs(dx) >= Math.abs(dy)) {
 				m = dy/dx;
 				this.pixelErr += m;
 				
+				// Octant 1 / 5
 				if (m > 0) {
 					if (this.vectorQuad != Direction.UP){
 						this.vectorQuad = Direction.UP;
@@ -180,23 +241,28 @@ public abstract class Entity {
 					}
 					
 					if (dx > 0) {
-						this.curPos.x += 1;
+						this.moveRight();
 					}
 					else {
-						this.curPos.x -= 1;
+						this.moveLeft();
 					}
 					
 					if (dy > 0) {
-						this.curPos.y -= Math.floor(this.pixelErr);
+						if (Math.floor(this.pixelErr) > 0) {
+							this.moveUp();
+						}
 					}
 					else {
-						this.curPos.y += Math.floor(this.pixelErr);
+						if (Math.floor(this.pixelErr) > 0) {
+							this.moveDown();
+						}
 					}
 					
 					if (this.pixelErr >= 1) {
 						this.pixelErr -= 1;
 					}
 				}
+				// Octant 4 / 8
 				else {
 					if (this.vectorQuad != Direction.DOWN) {
 						this.vectorQuad = Direction.DOWN;
@@ -204,17 +270,21 @@ public abstract class Entity {
 					}
 					
 					if (dx > 0) {
-						this.curPos.x += 1;
+						this.moveRight();
 					}
 					else {
-						this.curPos.x -= 1;
+						this.moveLeft();
 					}
 					
 					if (dy > 0) {
-						this.curPos.y += Math.ceil(this.pixelErr);
+						if (Math.ceil(this.pixelErr) < 0) {
+							this.moveUp();
+						}
 					}
 					else {
-						this.curPos.y -= Math.ceil(this.pixelErr);
+						if (Math.ceil(this.pixelErr) < 0) {
+							this.moveDown();
+						}
 					}
 					
 					if (this.pixelErr <= -1) {
@@ -226,6 +296,7 @@ public abstract class Entity {
 				m = dx/dy;
 				this.pixelErr += m;
 				
+				// Octant 2 / 6
 				if (m > 0) {
 					if (this.vectorQuad != Direction.RIGHT) {
 						this.vectorQuad = Direction.RIGHT;
@@ -233,23 +304,28 @@ public abstract class Entity {
 					}
 					
 					if (dy > 0) {
-						this.curPos.y -= 1;
+						this.moveUp();
 					}
 					else {
-						this.curPos.y += 1;
+						this.moveDown();
 					}
 					
 					if (dx > 0) {
-						this.curPos.x += Math.floor(this.pixelErr);
+						if (Math.floor(this.pixelErr) > 0) {
+							this.moveRight();
+						}
 					}
 					else {
-						this.curPos.x -= Math.floor(this.pixelErr);
+						if (Math.floor(this.pixelErr) > 0) {
+							this.moveLeft();
+						}
 					}
 					
 					if (this.pixelErr >= 1) {
 						this.pixelErr -= 1;
 					}
 				}
+				// Octant 3, 7
 				else {
 					if (this.vectorQuad != Direction.LEFT) {
 						this.vectorQuad = Direction.LEFT;
@@ -257,17 +333,21 @@ public abstract class Entity {
 					}
 					
 					if (dx > 0) {
-						this.curPos.y += 1;
+						this.moveDown();
 					}
 					else {
-						this.curPos.y -= 1;
+						this.moveUp();
 					}
 					
 					if (dy > 0) {
-						this.curPos.x += Math.ceil(this.pixelErr);
+						if (Math.ceil(this.pixelErr) < 0) {
+							this.moveLeft();
+						}
 					}
 					else {
-						this.curPos.x -= Math.ceil(this.pixelErr);
+						if (Math.ceil(this.pixelErr) < 0) {
+							this.moveRight();
+						}
 					}
 					
 					if (this.pixelErr <= -1) {

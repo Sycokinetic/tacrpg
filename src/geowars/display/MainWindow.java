@@ -15,6 +15,7 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -27,32 +28,32 @@ public class MainWindow extends JFrame implements Runnable {
 	private GraphicsDevice display;
 
 	private JPanel hostPanel;
-	private GamePanel gamePanel;
-	private MainMenuPanel menuPanel;
 
 	private Controller keyListener;
-	private Controller gameListener;
-	private Controller menuListener;
 	private Point camPos;
 	private Rectangle winSize;
 	private int width = 900;
 	private int height = width / 16 * 9;
 
-	private double prevFrameTime;
+	private long prevFrameTime;
 	private int FPSCap = 60;
 	private int frameCount = 0;
 	private int timeElapse = 0;
 
-	private boolean isRunning;
-	private boolean isPaused;
 	private boolean fullscreen;
 
+	private static volatile HashMap<String, JPanel> panelSet;
 	private JPanel curPanel;
 	private String status;
-	
+
 	// == Constructors ==
 	public MainWindow() {
 		this.setResizable(false);
+
+		panelSet = new HashMap<String, JPanel>();
+		panelSet.put(Constant.PLAY, new GamePanel());
+		panelSet.put(Constant.MAIN, new MainMenuPanel());
+		panelSet.put(Constant.PAUSE, panelSet.get(Constant.MAIN));
 
 		hostPanel = new JPanel(new BorderLayout());
 //		gamePanel = new GamePanel();
@@ -71,7 +72,7 @@ public class MainWindow extends JFrame implements Runnable {
 		setLocationRelativeTo(null);
 		setTitle(VERSION);
 
-		setFullscreen(false);
+		setFullscreen(true);
 	}
 
 	// == Private methods ==
@@ -97,31 +98,62 @@ public class MainWindow extends JFrame implements Runnable {
 	 * less than the time specified by the provided limit, then sleeps for the
 	 * appropriate number of microseconds.
 	 */
+//	private void frameCap() {
+//		long curTime = System.nanoTime();
+//		long sleepTime = (1_000_000_000 / FPSCap - (curTime - prevFrameTime)) / 1_000_000;
+//		if (sleepTime > 0) {
+//			try {
+//				// Thread.sleep(0);
+//				Thread.sleep((int) sleepTime);
+//			} catch (InterruptedException e) {
+//				System.out.println("Thread Interrupted");
+//			}
+//		}
+//
+//		frameCount++;
+//		curTime = System.nanoTime();
+//		timeElapse += curTime - prevFrameTime;
+//		if (frameCount % 60 == 0) {
+//			int fps = (int) (1_000_000_000 * ((double) frameCount / timeElapse));
+//
+//			System.out.println("UPS: " + Game.getUPS() + ", FPS: " + fps);
+//
+//			frameCount = 0;
+//			timeElapse = 0;
+//		}
+//
+//		prevFrameTime = curTime;
+//	}
+
+	// ANALYZE FOR TIME STABILITY
 	private void frameCap() {
-		double curTime = System.nanoTime();
-		double sleepTime = (1_000_000_000 / FPSCap - (curTime - prevFrameTime)) / 1_000_000;
+		long curTime = System.nanoTime();
+		long dt = curTime - prevFrameTime;
+		long sleepTime = (1_000_000_000 / FPSCap - (curTime - prevFrameTime));
+
 		if (sleepTime > 0) {
 			try {
-				// Thread.sleep(0);
-				Thread.sleep((int) sleepTime);
+//				Thread.sleep(0);
+				Thread.sleep((long) sleepTime / 1_000_000, (int) sleepTime % 1_000_000);
 			} catch (InterruptedException e) {
 				System.out.println("Thread Interrupted");
 			}
 		}
 
+//		System.out.println(System.nanoTime() - prevFrameTime);
+	}
+
+	private void frameMonitor() {
 		frameCount++;
-		curTime = System.nanoTime();
-		timeElapse += curTime - prevFrameTime;
+		timeElapse += System.nanoTime() - prevFrameTime;
 		if (frameCount % 60 == 0) {
 			int fps = (int) (1_000_000_000 * ((double) frameCount / timeElapse));
-
+			System.out.println(Game.getPlayer().getCurPos());
 			System.out.println("UPS: " + Game.getUPS() + ", FPS: " + fps);
 
 			frameCount = 0;
 			timeElapse = 0;
 		}
-
-		prevFrameTime = curTime;
 	}
 
 	private void setControls() {
@@ -166,21 +198,22 @@ public class MainWindow extends JFrame implements Runnable {
 		});
 	}
 
+	// HAS BUG WITH EXIT
 	@Override
 	public void run() {
 		status = Game.getStatus();
-		curPanel = Game.getCurPanel();
+		curPanel = panelSet.get(status);
 		hostPanel.add(curPanel, BorderLayout.CENTER);
 		this.revalidate();
-		
+
 		while (Game.isRunning()) {
 			if (status.compareTo(Game.getStatus()) != 0) {
 				status = Game.getStatus();
-				
+
 				hostPanel.remove(curPanel);
-				curPanel = Game.getCurPanel();
+				curPanel = panelSet.get(status);
 				hostPanel.add(curPanel, BorderLayout.CENTER);
-								
+
 				this.revalidate();
 			}
 
@@ -188,6 +221,8 @@ public class MainWindow extends JFrame implements Runnable {
 				repaint();
 			}
 			frameCap();
+			frameMonitor();
+			prevFrameTime = System.nanoTime();
 		}
 
 		this.dispose();

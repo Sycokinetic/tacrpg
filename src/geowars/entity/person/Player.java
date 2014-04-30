@@ -18,6 +18,22 @@ public class Player extends Person {
 		super(p);
 	}
 
+	public void moveDown() {
+		super.moveDown();
+	}
+	
+	public void moveLeft() {
+		super.moveLeft();
+	}
+	
+	public void moveRight() {
+		super.moveRight();
+	}
+	
+	public void moveUp() {
+		super.moveUp();
+	}
+	
 	/**
 	 * Empty function inherited from Entity.
 	 */
@@ -37,6 +53,6 @@ public class Player extends Person {
 		this.loadAnims();
 
 		this.curKey = Constant.MAIN;
-		this.moveRate = 20;
+		this.moveRate = 400;
 	}
 }

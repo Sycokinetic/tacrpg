@@ -24,30 +24,27 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JPanel;
 
-public class Game {
+public class Game implements Runnable {
 	// == Private attributes ==
 	private static final String VERSION = "Geowars PC v0.1";
 	private static boolean init = false;
 	private static volatile boolean isRunning = false;
-	private static volatile boolean isPaused = true;
 
 	private static volatile Player player;
 	private static Thread windowThread;
 
-	private static long prevFrameTime;
-	private static long frameMarker1 = 0;
-	private static long frameMarker2 = 0;
-	private static int FPSCap = 60;
+	private static long prevFrameStart;
+	private static long curFrameStart;
+	private static long prevTickLength;
 	private static int tickTarget = 10; // Base UPS Rate of n ms per update
 
 	private static int tickCount = 0;
 	private static int timeElapse = 0;
-	private static double ups = 0;
+	private static int ups = 0;
 
 	private static List<Entity> entityList;
 
 	private static String status;
-	private static volatile HashMap<String, JPanel> panelSet;
 
 	// == Constructors ==
 	/**
@@ -60,17 +57,14 @@ public class Game {
 	 *             Only one instance can exist at a time
 	 */
 	public Game() throws InstantiationException {
-		if (init)
+		if (init) {
 			throw new InstantiationException("Multiple Game instances");
+		}
 
 		else {
 			init = true;
 			entityList = new CopyOnWriteArrayList<Entity>();
-			
-			panelSet = new HashMap<String, JPanel>();
-			panelSet.put(Constant.PLAY, new GamePanel());
-			panelSet.put(Constant.MAIN, new MainMenuPanel());
-			
+
 			status = Constant.MAIN;
 
 			windowThread = new Thread(new MainWindow());
@@ -104,13 +98,12 @@ public class Game {
 
 	// ANALYZE FOR TIME STABILITY
 	private void updateCap() {
-		double curTime = System.nanoTime();
-		double dt = curTime - prevFrameTime;
+		long curTime = System.nanoTime();
+		long dt = curTime - curFrameStart;
 		double sleepTime = tickTarget * 1_000_000 - dt;
 
 		if (sleepTime > 0) {
 			try {
-//				Thread.sleep(0);
 //				System.out.println(sleepTime + ", " + (((long)sleepTime/1_000_000)*1_000_000 + (int)sleepTime % 1_000_000 + dt) + ", " + dt);
 				Thread.sleep((long) sleepTime / 1_000_000, (int) sleepTime % 1_000_000);
 			} catch (InterruptedException e) {
@@ -118,21 +111,28 @@ public class Game {
 			}
 		}
 
-//		System.out.println(System.nanoTime() - prevFrameTime);
-	}
-
-	private void tickMonitor() {
-		frameMarker1 = frameMarker2;
-		frameMarker2 = System.nanoTime();
-
-		tickCount++;
-		timeElapse += frameMarker2 - prevFrameTime;
+		timeElapse += prevTickLength;
 		if (tickCount % 50 == 0) {
-			ups = (1_000_000_000 * ((double) tickCount / timeElapse));
+			ups = (int) (1_000_000_000 * ((double) tickCount / timeElapse));
 			tickCount = 0;
 			timeElapse = 0;
 		}
+		tickCount++;
+		prevTickLength = System.nanoTime() - curFrameStart;
 	}
+
+//	private void tickMonitor() {
+//		frameMarker1 = frameMarker2;
+//		frameMarker2 = System.nanoTime();
+//
+//		tickCount++;
+//		timeElapse += frameMarker2 - prevFrameStart;
+//		if (tickCount % 50 == 0) {
+//			ups = (int) (1_000_000_000 * ((double) tickCount / timeElapse));
+//			tickCount = 0;
+//			timeElapse = 0;
+//		}
+//	}
 
 	// == Public Methods ==
 	/**
@@ -153,16 +153,8 @@ public class Game {
 		return VERSION;
 	}
 
-	public static long getPrevFrameTime() {
-		return prevFrameTime;
-	}
-
-	public static long getMarker1() {
-		return frameMarker1;
-	}
-
-	public static long getMarker2() {
-		return frameMarker2;
+	public static long getPrevTickLength() {
+		return prevTickLength;
 	}
 
 	public static int getTickTarget() {
@@ -177,65 +169,62 @@ public class Game {
 		return timeElapse;
 	}
 
-	public static double getUPS() {
+	public static int getUPS() {
 		return ups;
-	}
-	
-	public static synchronized JPanel getCurPanel() {
-		return panelSet.get(status);
 	}
 
 	public static String getStatus() {
 		return new String(status);
 	}
-	
+
 	/**
 	 * Run game's primary loop if instance has not been shutdown.
 	 * 
 	 * @throws Exception
 	 */
-	public void run() throws Exception {
-		if (init) {
-			isRunning = true;
+	public void run() {
+		isRunning = true;
 
-			player = new Player();
-			// player = new Player(winSize.width/2 - 50, winSize.height/2 - 50);
+		player = new Player();
+		// player = new Player(winSize.width/2 - 50, winSize.height/2 - 50);
 
-			entityList.add(player);
+		entityList.add(player);
 
-			Random randGen = new Random();
+		Random randGen = new Random();
 
-			for (int i = 0; i < 100; i++) {
-				entityList.add(new Nonplayer(randGen.nextInt(1920), randGen.nextInt(1080)));
-			}
+		for (int i = 0; i < 100; i++) {
+			entityList.add(new Nonplayer(randGen.nextInt(1920), randGen.nextInt(1080)));
+		}
+//		entityList.add(new Nonplayer(900, 900));
 
-			windowThread.start();
+		windowThread.start();
 
-			while (isRunning) {
-				Controller.processKeys();
+		prevFrameStart = 0;
+		curFrameStart = System.nanoTime();
+		while (isRunning) {
+			Controller.processKeys();
 
-				if (!isPaused) {
-					for (Entity i : entityList) {
-						i.update();
+			prevFrameStart = curFrameStart;
+			curFrameStart = System.nanoTime();
 
-						if (i != player && sphereCollide(player, i)) {
-							i.setAlive(Constant.DEAD);
-						}
+			if (status.compareTo(Constant.PLAY) == 0) {
+				for (Entity i : entityList) {
+					i.update();
 
-						if (i.getAlive() == Constant.DEAD) {
-							entityList.remove(i);
-						}
+					if (i != player && sphereCollide(player, i)) {
+						i.setAlive(Constant.DEAD);
+					}
+
+					if (i.getAlive() == Constant.DEAD) {
+						entityList.remove(i);
 					}
 				}
-				
-				updateCap();
-				tickMonitor();
-				prevFrameTime = System.nanoTime();
 			}
-			shutdown();
-		} else {
-			throw new Exception("Game has already been shut down.");
+
+			updateCap();
+//			tickMonitor();
 		}
+		shutdown();
 	}
 
 	/**
@@ -250,28 +239,27 @@ public class Game {
 	}
 
 	public static synchronized void setPaused(boolean b) {
-		isPaused = b;
-		
 		if (b) {
 			status = Constant.PAUSE;
-		}
-		else {
+		} else {
 			status = Constant.PLAY;
 		}
 	}
 
 	public static void togglePaused() {
-		if (isPaused) {
-			isPaused = false;
+		if (status.compareTo(Constant.PAUSE) == 0) {
 			status = Constant.PLAY;
 		} else {
-			isPaused = true;
 			status = Constant.PAUSE;
 		}
 	}
 
 	public static boolean isPaused() {
-		return isPaused;
+		if (status.compareTo(Constant.PAUSE) == 0) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	public static boolean isRunning() {
