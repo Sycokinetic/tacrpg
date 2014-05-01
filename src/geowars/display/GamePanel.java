@@ -16,7 +16,7 @@ public class GamePanel extends JPanel {
 		
 		List<Entity> entityList = Game.getEntityList();
 				
-		for (Entity i: entityList) {
+		for (Entity i : entityList) {
 			int camX = Game.getPlayer().getCenter().x;// + Game.getWinSize().width/2;
 			int camY = Game.getPlayer().getCenter().y;// + Game.getWinSize().height/2;
 			

@@ -34,16 +34,17 @@ public class Game {
 	private static long prevFrameStart;
 	private static long curFrameStart;
 	private static long prevTickLength;
-	private static int tickTarget = 10; // Base UPS Rate of n ms per update
+	private static int tickTarget = 5; // Base UPS Rate of n ms per update
 
 	private static int tickCount = 0;
 	private static int timeElapse = 0;
 	private static int ups = 0;
+	private static MainWindow window;
 
 	private static volatile List<Entity> entityList;
 
 	private static String status;
-	public static ScheduledExecutorService scheduler;
+	private static ScheduledExecutorService scheduler;
 
 	// == Constructors ==
 	/**
@@ -95,44 +96,6 @@ public class Game {
 		}
 	}
 
-	// ANALYZE FOR TIME STABILITY
-	private static void updateCap() {
-		long curTime = System.nanoTime();
-		long dt = curTime - curFrameStart;
-		double sleepTime = tickTarget * 1_000_000 - dt;
-
-		if (sleepTime > 0) {
-			try {
-//				System.out.println(sleepTime + ", " + (((long)sleepTime/1_000_000)*1_000_000 + (int)sleepTime % 1_000_000 + dt) + ", " + dt);
-				Thread.sleep((long) sleepTime / 1_000_000, (int) sleepTime % 1_000_000);
-			} catch (InterruptedException e) {
-				System.out.println("Thread Interrupted");
-			}
-		}
-
-		timeElapse += prevTickLength;
-		if (tickCount % 50 == 0) {
-			ups = (int) (1_000_000_000 * ((double) tickCount / timeElapse));
-			tickCount = 0;
-			timeElapse = 0;
-		}
-		tickCount++;
-		prevTickLength = System.nanoTime() - curFrameStart;
-	}
-
-//	private void tickMonitor() {
-//		frameMarker1 = frameMarker2;
-//		frameMarker2 = System.nanoTime();
-//
-//		tickCount++;
-//		timeElapse += frameMarker2 - prevFrameStart;
-//		if (tickCount % 50 == 0) {
-//			ups = (int) (1_000_000_000 * ((double) tickCount / timeElapse));
-//			tickCount = 0;
-//			timeElapse = 0;
-//		}
-//	}
-
 	// == Public Methods ==
 	/**
 	 * @return the list of all entities in the game
@@ -178,14 +141,14 @@ public class Game {
 
 	public static void start() {
 		isRunning = true;
-		
-		windowThread = new Thread(new MainWindow());
 		entityList = new CopyOnWriteArrayList<Entity>();
-
 		status = Constant.MAIN;
-		
-		player = new Player();
-		// player = new Player(winSize.width/2 - 50, winSize.height/2 - 50);
+
+		window = new MainWindow();
+		windowThread = new Thread(window);
+
+		// Change to map coordinates after completion
+		player = new Player(window.getWinSize().width / 2 - 50, window.getWinSize().height / 2 - 50);
 		entityList.add(player);
 
 		Random randGen = new Random();
@@ -196,9 +159,6 @@ public class Game {
 
 		windowThread.start();
 
-		prevFrameStart = 0;
-		curFrameStart = System.nanoTime();
-
 		scheduler = Executors.newScheduledThreadPool(1);
 		Runnable run = new Runnable() {
 			@Override
@@ -206,9 +166,9 @@ public class Game {
 				prevFrameStart = curFrameStart;
 				curFrameStart = System.nanoTime();
 				prevTickLength = curFrameStart - prevFrameStart;
-				
+
 				Controller.processKeys();
-				
+
 				if (status.compareTo(Constant.PLAY) == 0) {
 					for (Entity i : entityList) {
 						i.update();
@@ -222,65 +182,28 @@ public class Game {
 						}
 					}
 				}
+
+				tickCount++;
+				timeElapse += prevTickLength;
+				if (tickCount % (tickTarget / 2) == 0) {
+					ups = (int) (1_000_000_000 * ((double) tickCount / timeElapse));
+					tickCount = 0;
+					timeElapse = 0;
+				}
 			}
 		};
 
+		prevFrameStart = 0;
+		curFrameStart = System.nanoTime();
+
 		scheduler.scheduleAtFixedRate(run, 0, tickTarget, TimeUnit.MILLISECONDS);
 	}
-	
+
 	public static void stop() {
 		isRunning = false;
 		scheduler.shutdown();
-	}
-	
-	/**
-	 * Run game's primary loop if instance has not been shutdown.
-	 * 
-	 * @throws Exception
-	 */
-	public static void run() {
-//		isRunning = true;
-//
-//		player = new Player();
-//		// player = new Player(winSize.width/2 - 50, winSize.height/2 - 50);
-//
-//		entityList.add(player);
-//
-//		Random randGen = new Random();
-//
-//		for (int i = 0; i < 100; i++) {
-//			entityList.add(new Nonplayer(randGen.nextInt(1920), randGen.nextInt(1080)));
-//		}
-////		entityList.add(new Nonplayer(900, 900));
-//
-//		windowThread.start();
-//
-//		prevFrameStart = 0;
-//		curFrameStart = System.nanoTime();
-//		while (isRunning) {
-		Controller.processKeys();
-
-		prevFrameStart = curFrameStart;
-		curFrameStart = System.nanoTime();
-
-		if (status.compareTo(Constant.PLAY) == 0) {
-			for (Entity i : entityList) {
-				i.update();
-
-				if (i != player && sphereCollide(player, i)) {
-					i.setAlive(Constant.DEAD);
-				}
-
-				if (i.getAlive() == Constant.DEAD) {
-					entityList.remove(i);
-				}
-			}
-		}
-
-//			updateCap();
-//			tickMonitor();
-//		}
-//		shutdown();
+		window.stop();
+		shutdown();
 	}
 
 	/**
@@ -303,7 +226,7 @@ public class Game {
 	}
 
 	public static void togglePaused() {
-		if (status.compareTo(Constant.PAUSE) == 0) {
+		if (status.compareTo(Constant.PLAY) != 0) {
 			status = Constant.PLAY;
 		} else {
 			status = Constant.PAUSE;
@@ -322,11 +245,13 @@ public class Game {
 		return isRunning;
 	}
 
+	// MERGE WITH STOP
+	// FIND CONSISTENT IMPLEMENTATION WITH MAINWINDOW
 	/**
 	 * Called after Game instance is completed and resets static variables in
 	 * preparation for new Game instance.
 	 */
-	private static void shutdown() {
+	public static void shutdown() {
 		try {
 			windowThread.join();
 		} catch (InterruptedException e) {
