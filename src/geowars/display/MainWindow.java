@@ -8,8 +8,6 @@ import java.awt.BorderLayout;
 import java.awt.GraphicsDevice;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.concurrent.Executors;
@@ -90,67 +88,6 @@ public class MainWindow extends JFrame implements Runnable {
 		}
 	}
 
-	/**
-	 * Calculates the difference between the timestamps of the end of the
-	 * previous frame and the end of the current frame. If that difference is
-	 * less than the time specified by the provided limit, then sleeps for the
-	 * appropriate number of microseconds.
-	 */
-//	private void frameCap() {
-//		long curTime = System.nanoTime();
-//		long sleepTime = (1_000_000_000 / FPSCap - (curTime - prevFrameTime)) / 1_000_000;
-//		if (sleepTime > 0) {
-//			try {
-//				// Thread.sleep(0);
-//				Thread.sleep((int) sleepTime);
-//			} catch (InterruptedException e) {
-//				System.out.println("Thread Interrupted");
-//			}
-//		}
-//
-//		frameCount++;
-//		curTime = System.nanoTime();
-//		timeElapse += curTime - prevFrameTime;
-//		if (frameCount % 60 == 0) {
-//			int fps = (int) (1_000_000_000 * ((double) frameCount / timeElapse));
-//
-//			System.out.println("UPS: " + Game.getUPS() + ", FPS: " + fps);
-//
-//			frameCount = 0;
-//			timeElapse = 0;
-//		}
-//
-//		prevFrameTime = curTime;
-//	}
-
-//	// ANALYZE FOR TIME STABILITY
-//	private void frameCap() {
-//		long curTime = System.nanoTime();
-//		long dt = curTime - prevFrameTime;
-//		long sleepTime = (1_000_000_000 / FPSCap - (curTime - prevFrameTime));
-//
-//		if (sleepTime > 0) {
-//			try {
-////				Thread.sleep(0);
-//				Thread.sleep((long) sleepTime / 1_000_000, (int) sleepTime % 1_000_000);
-//			} catch (InterruptedException e) {
-//				System.out.println("Thread Interrupted");
-//			}
-//		}
-//	}
-//
-//	private void frameMonitor() {
-//		frameCount++;
-//		timeElapse += System.nanoTime() - prevFrameTime;
-//		if (frameCount % 60 == 0) {
-//			int fps = (int) (1_000_000_000 * ((double) frameCount / timeElapse));
-//			System.out.println("UPS: " + Game.getUPS() + ", FPS: " + fps);
-//
-//			frameCount = 0;
-//			timeElapse = 0;
-//		}
-//	}
-
 	private void setControls() {
 		keyListener.addAction(KeyEvent.VK_DOWN, new UserAction(Constant.MOVE + Constant.DOWN, true, true) {
 			public void action() {
@@ -192,6 +129,7 @@ public class MainWindow extends JFrame implements Runnable {
 		});
 	}
 
+	// == Public Methods ==
 	public void start() {
 		status = Game.getStatus();
 		curPanel = panelSet.get(status);
@@ -227,7 +165,7 @@ public class MainWindow extends JFrame implements Runnable {
 					fps = (int) (1_000_000_000 * ((double) frameCount / timeElapse));
 					frameCount = 0;
 					timeElapse = 0;
-					
+
 					System.out.println("UPS: " + Game.getUPS() + ", FPS: " + fps);
 				}
 			}
@@ -236,7 +174,7 @@ public class MainWindow extends JFrame implements Runnable {
 		prevFrameStart = 0;
 		curFrameStart = System.nanoTime();
 
-		scheduler.scheduleAtFixedRate(run, 0, 1_000_000_000/this.FPSCap, TimeUnit.NANOSECONDS);
+		scheduler.scheduleAtFixedRate(run, 0, 1_000_000_000 / this.FPSCap, TimeUnit.NANOSECONDS);
 	}
 
 	@Override
@@ -253,43 +191,4 @@ public class MainWindow extends JFrame implements Runnable {
 	public Rectangle getWinSize() {
 		return this.winSize;
 	}
-
-//	@Override
-//	public void run() {
-//		status = Game.getStatus();
-//		curPanel = panelSet.get(status);
-//		hostPanel.add(curPanel, BorderLayout.CENTER);
-//		this.revalidate();
-//
-//		timer.start();
-//	}
-
-//	@Override
-//	public void run() {
-//		status = Game.getStatus();
-//		curPanel = panelSet.get(status);
-//		hostPanel.add(curPanel, BorderLayout.CENTER);
-//		this.revalidate();
-//
-//		while (Game.isRunning()) {
-//			if (status.compareTo(Game.getStatus()) != 0) {
-//				status = Game.getStatus();
-//
-//				hostPanel.remove(curPanel);
-//				curPanel = panelSet.get(status);
-//				hostPanel.add(curPanel, BorderLayout.CENTER);
-//
-//				this.revalidate();
-//			}
-//
-//			if (status.compareTo(Constant.PLAY) == 0) {
-//				repaint();
-//			}
-//			frameCap();
-////		frameMonitor();
-//			prevFrameTime = System.nanoTime();
-//		}
-//
-//		this.dispose();
-//	}
 }

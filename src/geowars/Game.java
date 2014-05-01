@@ -15,6 +15,7 @@ import geowars.entity.person.Nonplayer;
 import geowars.entity.person.Player;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -45,31 +46,6 @@ public class Game {
 
 	private static String status;
 	private static ScheduledExecutorService scheduler;
-
-	// == Constructors ==
-	/**
-	 * Class constructor.
-	 * <p>
-	 * Determines if a Game instance has already been created and configures a
-	 * new instance if one is not found.
-	 * 
-	 * @throws InstantiationException
-	 *             Only one instance can exist at a time
-	 */
-	public Game() throws InstantiationException {
-		if (init) {
-			throw new InstantiationException("Multiple Game instances");
-		}
-
-		else {
-			init = true;
-			entityList = new CopyOnWriteArrayList<Entity>();
-
-			status = Constant.MAIN;
-
-			windowThread = new Thread(new MainWindow());
-		}
-	}
 
 	// == Private methods ==
 	/**
@@ -148,12 +124,13 @@ public class Game {
 		windowThread = new Thread(window);
 
 		// Change to map coordinates after completion
-		player = new Player(window.getWinSize().width / 2 - 50, window.getWinSize().height / 2 - 50);
+		Rectangle winSize = window.getWinSize();
+		player = new Player(winSize.width / 2 - 50, winSize.height / 2 - 50);
 		entityList.add(player);
 
 		Random randGen = new Random();
 		for (int i = 0; i < 100; i++) {
-			entityList.add(new Nonplayer(randGen.nextInt(1920), randGen.nextInt(1080)));
+			entityList.add(new Nonplayer(randGen.nextInt(winSize.width), randGen.nextInt(winSize.height)));
 		}
 //		entityList.add(new Nonplayer(900, 900));
 
@@ -203,7 +180,17 @@ public class Game {
 		isRunning = false;
 		scheduler.shutdown();
 		window.stop();
-		shutdown();
+
+		try {
+			windowThread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+
+		player = null;
+		entityList = null;
+
+		init = false;
 	}
 
 	/**
@@ -243,24 +230,5 @@ public class Game {
 
 	public static boolean isRunning() {
 		return isRunning;
-	}
-
-	// MERGE WITH STOP
-	// FIND CONSISTENT IMPLEMENTATION WITH MAINWINDOW
-	/**
-	 * Called after Game instance is completed and resets static variables in
-	 * preparation for new Game instance.
-	 */
-	public static void shutdown() {
-		try {
-			windowThread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		player = null;
-		entityList = null;
-
-		init = false;
 	}
 }
