@@ -9,22 +9,20 @@
 package geowars;
 
 import geowars.display.Controller;
-import geowars.display.GamePanel;
-import geowars.display.MainMenuPanel;
 import geowars.display.MainWindow;
 import geowars.entity.Entity;
 import geowars.entity.person.Nonplayer;
 import geowars.entity.person.Player;
 
 import java.awt.Point;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-import javax.swing.JPanel;
-
-public class Game implements Runnable {
+public class Game {
 	// == Private attributes ==
 	private static final String VERSION = "Geowars PC v0.1";
 	private static boolean init = false;
@@ -42,9 +40,10 @@ public class Game implements Runnable {
 	private static int timeElapse = 0;
 	private static int ups = 0;
 
-	private static List<Entity> entityList;
+	private static volatile List<Entity> entityList;
 
 	private static String status;
+	public static ScheduledExecutorService scheduler;
 
 	// == Constructors ==
 	/**
@@ -97,7 +96,7 @@ public class Game implements Runnable {
 	}
 
 	// ANALYZE FOR TIME STABILITY
-	private void updateCap() {
+	private static void updateCap() {
 		long curTime = System.nanoTime();
 		long dt = curTime - curFrameStart;
 		double sleepTime = tickTarget * 1_000_000 - dt;
@@ -177,21 +176,19 @@ public class Game implements Runnable {
 		return new String(status);
 	}
 
-	/**
-	 * Run game's primary loop if instance has not been shutdown.
-	 * 
-	 * @throws Exception
-	 */
-	public void run() {
+	public static void start() {
 		isRunning = true;
+		
+		windowThread = new Thread(new MainWindow());
+		entityList = new CopyOnWriteArrayList<Entity>();
 
+		status = Constant.MAIN;
+		
 		player = new Player();
 		// player = new Player(winSize.width/2 - 50, winSize.height/2 - 50);
-
 		entityList.add(player);
 
 		Random randGen = new Random();
-
 		for (int i = 0; i < 100; i++) {
 			entityList.add(new Nonplayer(randGen.nextInt(1920), randGen.nextInt(1080)));
 		}
@@ -201,30 +198,89 @@ public class Game implements Runnable {
 
 		prevFrameStart = 0;
 		curFrameStart = System.nanoTime();
-		while (isRunning) {
-			Controller.processKeys();
 
-			prevFrameStart = curFrameStart;
-			curFrameStart = System.nanoTime();
+		scheduler = Executors.newScheduledThreadPool(1);
+		Runnable run = new Runnable() {
+			@Override
+			public void run() {
+				prevFrameStart = curFrameStart;
+				curFrameStart = System.nanoTime();
+				prevTickLength = curFrameStart - prevFrameStart;
+				
+				Controller.processKeys();
+				
+				if (status.compareTo(Constant.PLAY) == 0) {
+					for (Entity i : entityList) {
+						i.update();
 
-			if (status.compareTo(Constant.PLAY) == 0) {
-				for (Entity i : entityList) {
-					i.update();
+						if (i != player && sphereCollide(player, i)) {
+							i.setAlive(Constant.DEAD);
+						}
 
-					if (i != player && sphereCollide(player, i)) {
-						i.setAlive(Constant.DEAD);
-					}
-
-					if (i.getAlive() == Constant.DEAD) {
-						entityList.remove(i);
+						if (i.getAlive() == Constant.DEAD) {
+							entityList.remove(i);
+						}
 					}
 				}
 			}
+		};
 
-			updateCap();
-//			tickMonitor();
+		scheduler.scheduleAtFixedRate(run, 0, tickTarget, TimeUnit.MILLISECONDS);
+	}
+	
+	public static void stop() {
+		isRunning = false;
+		scheduler.shutdown();
+	}
+	
+	/**
+	 * Run game's primary loop if instance has not been shutdown.
+	 * 
+	 * @throws Exception
+	 */
+	public static void run() {
+//		isRunning = true;
+//
+//		player = new Player();
+//		// player = new Player(winSize.width/2 - 50, winSize.height/2 - 50);
+//
+//		entityList.add(player);
+//
+//		Random randGen = new Random();
+//
+//		for (int i = 0; i < 100; i++) {
+//			entityList.add(new Nonplayer(randGen.nextInt(1920), randGen.nextInt(1080)));
+//		}
+////		entityList.add(new Nonplayer(900, 900));
+//
+//		windowThread.start();
+//
+//		prevFrameStart = 0;
+//		curFrameStart = System.nanoTime();
+//		while (isRunning) {
+		Controller.processKeys();
+
+		prevFrameStart = curFrameStart;
+		curFrameStart = System.nanoTime();
+
+		if (status.compareTo(Constant.PLAY) == 0) {
+			for (Entity i : entityList) {
+				i.update();
+
+				if (i != player && sphereCollide(player, i)) {
+					i.setAlive(Constant.DEAD);
+				}
+
+				if (i.getAlive() == Constant.DEAD) {
+					entityList.remove(i);
+				}
+			}
 		}
-		shutdown();
+
+//			updateCap();
+//			tickMonitor();
+//		}
+//		shutdown();
 	}
 
 	/**

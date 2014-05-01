@@ -3,20 +3,14 @@ package geowars.display;
 import geowars.Constant;
 import geowars.Game;
 import geowars.display.Controller.UserAction;
-import geowars.entity.Entity;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
-
 import java.util.HashMap;
-import java.util.List;
+import java.util.Timer;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -39,7 +33,8 @@ public class MainWindow extends JFrame implements Runnable {
 	private int FPSCap = 60;
 	private int frameCount = 0;
 	private int timeElapse = 0;
-
+	private Timer timer;
+	
 	private boolean fullscreen;
 
 	private static volatile HashMap<String, JPanel> panelSet;
@@ -148,7 +143,6 @@ public class MainWindow extends JFrame implements Runnable {
 		timeElapse += System.nanoTime() - prevFrameTime;
 		if (frameCount % 60 == 0) {
 			int fps = (int) (1_000_000_000 * ((double) frameCount / timeElapse));
-			System.out.println(Game.getPlayer().getCurPos());
 			System.out.println("UPS: " + Game.getUPS() + ", FPS: " + fps);
 
 			frameCount = 0;
@@ -187,8 +181,7 @@ public class MainWindow extends JFrame implements Runnable {
 		});
 		keyListener.addAction(KeyEvent.VK_ESCAPE, new UserAction(Constant.EXIT + Constant.GAME, true, false) {
 			public void action() {
-				Game.setPaused(true);
-				Game.setRunning(false);
+				Game.stop();
 			}
 		});
 		keyListener.addAction(KeyEvent.VK_P, new UserAction(Constant.PAUSE + Constant.GAME, true, false) {
@@ -216,7 +209,7 @@ public class MainWindow extends JFrame implements Runnable {
 
 				this.revalidate();
 			}
-
+			
 			if (status.compareTo(Constant.PLAY) == 0) {
 				repaint();
 			}

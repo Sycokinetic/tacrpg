@@ -21,19 +21,19 @@ public class Player extends Person {
 	public void moveDown() {
 		super.moveDown();
 	}
-	
+
 	public void moveLeft() {
 		super.moveLeft();
 	}
-	
+
 	public void moveRight() {
 		super.moveRight();
 	}
-	
+
 	public void moveUp() {
 		super.moveUp();
 	}
-	
+
 	/**
 	 * Empty function inherited from Entity.
 	 */
