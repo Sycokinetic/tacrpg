@@ -6,7 +6,6 @@ import geowars.display.Controller.UserAction;
 
 import java.awt.BorderLayout;
 import java.awt.GraphicsDevice;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.util.HashMap;
@@ -21,31 +20,32 @@ public class MainWindow extends JFrame implements Runnable {
 	// == Private attributes ==
 	private final String VERSION = Game.getVersion();
 
-	private GraphicsDevice display;
-
-	private JPanel hostPanel;
-
-	private Controller keyListener;
-	private Point camPos;
-	private Rectangle winSize;
 	private int width = 900;
 	private int height = width / 16 * 9;
+	private Rectangle winSize;
 
+	private GraphicsDevice display;
+	private boolean fullscreen;
+//	private Point camPos;
+
+	private JPanel hostPanel;
+	private Controller keyListener;
+
+	private int FPSCap = 120;
 	private long prevFrameStart;
 	private long curFrameStart;
 	private long prevTickLength;
-	private int FPSCap = 120;
 	private int fps = 0;
 	private int frameCount = 0;
 	private int timeElapse = 0;
 
-	private boolean fullscreen;
-
+	private String status;
 	private static volatile HashMap<String, JPanel> panelSet;
 	private JPanel curPanel;
-	private String status;
 
 	private ScheduledExecutorService scheduler;
+	
+	private static final long serialVersionUID = 1L;
 
 	// == Constructors ==
 	public MainWindow() {
@@ -88,8 +88,11 @@ public class MainWindow extends JFrame implements Runnable {
 		}
 	}
 
+	// CREATE LIBRARY OF LISTENERS FOR USE IN BUTTONS AND CONTROLS
 	private void setControls() {
 		keyListener.addAction(KeyEvent.VK_DOWN, new UserAction(Constant.MOVE + Constant.DOWN, true, true) {
+			private static final long serialVersionUID = 1L;
+
 			public void action() {
 				if (!Game.isPaused()) {
 					Game.getPlayer().moveDown();
@@ -97,6 +100,8 @@ public class MainWindow extends JFrame implements Runnable {
 			}
 		});
 		keyListener.addAction(KeyEvent.VK_UP, new UserAction(Constant.MOVE + Constant.UP, true, true) {
+			private static final long serialVersionUID = 1L;
+
 			public void action() {
 				if (!Game.isPaused()) {
 					Game.getPlayer().moveUp();
@@ -104,6 +109,8 @@ public class MainWindow extends JFrame implements Runnable {
 			}
 		});
 		keyListener.addAction(KeyEvent.VK_LEFT, new UserAction(Constant.MOVE + Constant.LEFT, true, true) {
+			private static final long serialVersionUID = 1L;
+			
 			public void action() {
 				if (!Game.isPaused()) {
 					Game.getPlayer().moveLeft();
@@ -111,6 +118,8 @@ public class MainWindow extends JFrame implements Runnable {
 			}
 		});
 		keyListener.addAction(KeyEvent.VK_RIGHT, new UserAction(Constant.MOVE + Constant.RIGHT, true, true) {
+			private static final long serialVersionUID = 1L;
+			
 			public void action() {
 				if (!Game.isPaused()) {
 					Game.getPlayer().moveRight();
@@ -118,11 +127,15 @@ public class MainWindow extends JFrame implements Runnable {
 			}
 		});
 		keyListener.addAction(KeyEvent.VK_ESCAPE, new UserAction(Constant.EXIT + Constant.GAME, true, false) {
+			private static final long serialVersionUID = 1L;
+			
 			public void action() {
 				Game.stop();
 			}
 		});
 		keyListener.addAction(KeyEvent.VK_P, new UserAction(Constant.PAUSE + Constant.GAME, true, false) {
+			private static final long serialVersionUID = 1L;
+			
 			public void action() {
 				Game.togglePaused();
 			}
@@ -130,6 +143,16 @@ public class MainWindow extends JFrame implements Runnable {
 	}
 
 	// == Public Methods ==
+	// Probably will be able to remove this after map implementation
+	public Rectangle getWinSize() {
+		return this.winSize;
+	}
+	
+	@Override
+	public void run() {
+		start();
+	}
+	
 	public void start() {
 		status = Game.getStatus();
 		curPanel = panelSet.get(status);
@@ -177,18 +200,8 @@ public class MainWindow extends JFrame implements Runnable {
 		scheduler.scheduleAtFixedRate(run, 0, 1_000_000_000 / this.FPSCap, TimeUnit.NANOSECONDS);
 	}
 
-	@Override
-	public void run() {
-		start();
-	}
-
 	public void stop() {
 		scheduler.shutdown();
 		this.dispose();
-	}
-
-	// Probably will be able to remove this after map implementation
-	public Rectangle getWinSize() {
-		return this.winSize;
 	}
 }

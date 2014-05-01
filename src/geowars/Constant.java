@@ -8,9 +8,6 @@
 
 package geowars;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 public class Constant {
 	public static final String NULL = "NULL ";
 	public static final String ALIVE = "ALIVE ";

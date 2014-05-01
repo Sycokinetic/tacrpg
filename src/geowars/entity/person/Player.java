@@ -1,7 +1,6 @@
 package geowars.entity.person;
 
 import geowars.Constant;
-import geowars.Constant.*;
 
 import java.awt.Dimension;
 import java.awt.Point;

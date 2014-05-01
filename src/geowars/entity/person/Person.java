@@ -1,6 +1,5 @@
 package geowars.entity.person;
 
-import geowars.Game;
 import geowars.entity.Entity;
 
 import java.awt.Point;

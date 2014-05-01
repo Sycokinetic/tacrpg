@@ -5,7 +5,6 @@ import geowars.Game;
 
 import java.awt.Dimension;
 import java.awt.Point;
-import java.util.HashSet;
 
 public class Nonplayer extends Person {
 	public Nonplayer() {

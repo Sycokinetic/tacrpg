@@ -24,8 +24,10 @@ public class MainMenuPanel extends JPanel {
 		}
 	}
 
-	JButton launch;
-	JButton exit;
+	private JButton launch;
+	private JButton exit;
+	
+	private static final long serialVersionUID = 1L;
 
 	public MainMenuPanel() {
 		super(new GridBagLayout());

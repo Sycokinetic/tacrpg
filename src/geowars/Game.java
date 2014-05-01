@@ -1,9 +1,6 @@
 /*
  * Classname: Game
  * Author: Sycokinetic
- * 
- * Notes:
- * - Only one Game instance per application can exist.
  */
 
 package geowars;
@@ -26,7 +23,6 @@ import java.util.concurrent.TimeUnit;
 public class Game {
 	// == Private attributes ==
 	private static final String VERSION = "Geowars PC v0.1";
-	private static boolean init = false;
 	private static volatile boolean isRunning = false;
 
 	private static volatile Player player;
@@ -87,12 +83,12 @@ public class Game {
 		return player;
 	}
 
-	public static String getVersion() {
-		return VERSION;
-	}
-
 	public static long getPrevTickLength() {
 		return prevTickLength;
+	}
+
+	public static String getStatus() {
+		return new String(status);
 	}
 
 	public static int getTickTarget() {
@@ -111,8 +107,47 @@ public class Game {
 		return ups;
 	}
 
-	public static String getStatus() {
-		return new String(status);
+	public static String getVersion() {
+		return VERSION;
+	}
+
+	public static boolean isPaused() {
+		if (status.compareTo(Constant.PAUSE) == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static boolean isRunning() {
+		return isRunning;
+	}
+
+	/**
+	 * Sets the game's running status to b
+	 * 
+	 * @param b
+	 *            boolean where true means the game will cycle through its
+	 *            primary loop.
+	 */
+	public static synchronized void setRunning(boolean b) {
+		isRunning = b;
+	}
+
+	public static synchronized void setPaused(boolean b) {
+		if (b) {
+			status = Constant.PAUSE;
+		} else {
+			status = Constant.PLAY;
+		}
+	}
+
+	public static void togglePaused() {
+		if (status.compareTo(Constant.PLAY) != 0) {
+			status = Constant.PLAY;
+		} else {
+			status = Constant.PAUSE;
+		}
 	}
 
 	public static void start() {
@@ -189,46 +224,5 @@ public class Game {
 
 		player = null;
 		entityList = null;
-
-		init = false;
-	}
-
-	/**
-	 * Sets the game's running status to b
-	 * 
-	 * @param b
-	 *            boolean where true means the game will cycle through its
-	 *            primary loop.
-	 */
-	public static synchronized void setRunning(boolean b) {
-		isRunning = b;
-	}
-
-	public static synchronized void setPaused(boolean b) {
-		if (b) {
-			status = Constant.PAUSE;
-		} else {
-			status = Constant.PLAY;
-		}
-	}
-
-	public static void togglePaused() {
-		if (status.compareTo(Constant.PLAY) != 0) {
-			status = Constant.PLAY;
-		} else {
-			status = Constant.PAUSE;
-		}
-	}
-
-	public static boolean isPaused() {
-		if (status.compareTo(Constant.PAUSE) == 0) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	public static boolean isRunning() {
-		return isRunning;
 	}
 }

@@ -14,11 +14,11 @@ public class Controller {
 	private static HashMap<String, Boolean> heldStatus;
 	private static HashMap<String, Boolean> toggleStatus;
 
-	private static UserAction moveUp;
-	private static UserAction moveLeft;
-	private static UserAction moveRight;
-	private static UserAction exit;
-	private static UserAction pause;
+//	private static UserAction moveUp;
+//	private static UserAction moveLeft;
+//	private static UserAction moveRight;
+//	private static UserAction exit;
+//	private static UserAction pause;
 
 	private JComponent component;
 
@@ -33,6 +33,8 @@ public class Controller {
 		private String name;
 		private boolean pressed;
 		private boolean held;
+
+		private static final long serialVersionUID = 1L;
 
 		UserAction(String nm, boolean p, boolean h) {
 			this.name = nm;
@@ -69,6 +71,7 @@ public class Controller {
 		public abstract void action();
 	}
 
+	// WILL NEED TO MODIFY TO ALLOW FOR ADDITION OF PRESSED AND RELEASED VARIANTS
 	public void addAction(int keyCode, UserAction action) {
 		KeyStroke pressedKeyStroke = KeyStroke.getKeyStroke(keyCode, 0);
 		String releaseString = KeyStroke.getKeyStroke(keyCode, 0).toString().replace("pressed", "released");
@@ -79,6 +82,8 @@ public class Controller {
 		component.getActionMap().put(action, action);
 
 		UserAction releasedAction = new UserAction(action.getName(), false, action.isHeld()) {
+			private static final long serialVersionUID = 1L;
+
 			public void action() {
 			}
 		};
