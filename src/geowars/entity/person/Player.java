@@ -33,13 +33,6 @@ public class Player extends Person {
 		super.moveUp();
 	}
 
-	/**
-	 * Empty function inherited from Entity.
-	 */
-	@Override
-	public void update() {
-	}
-
 	@Override
 	protected void loadData() {
 		this.SHEETFILE = "/res/ring.png";
@@ -53,5 +46,12 @@ public class Player extends Person {
 
 		this.curKey = Constant.MAIN;
 		this.moveRate = 400;
+	}
+	
+	/**
+	 * Empty function inherited from Entity.
+	 */
+	@Override
+	public void update() {
 	}
 }

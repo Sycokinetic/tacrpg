@@ -12,6 +12,7 @@ public class Constant {
 	public static final String NULL = "NULL ";
 	public static final String ALIVE = "ALIVE ";
 	public static final String ATTACK = "ATTACK ";
+	public static final String BLOCK = "BLOCK ";
 	public static final String DEAD = "DEAD ";
 	public static final String DOWN = "DOWN ";
 	public static final String EXIT = "EXIT ";

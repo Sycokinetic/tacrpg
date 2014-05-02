@@ -44,7 +44,7 @@ public class MainWindow extends JFrame implements Runnable {
 	private JPanel curPanel;
 
 	private ScheduledExecutorService scheduler;
-	
+
 	private static final long serialVersionUID = 1L;
 
 	// == Constructors ==
@@ -89,6 +89,7 @@ public class MainWindow extends JFrame implements Runnable {
 	}
 
 	// CREATE LIBRARY OF LISTENERS FOR USE IN BUTTONS AND CONTROLS
+	// TWEAK OPPOSITE CONTROLS TO DISABLE EACH OTHER IF SIMULTANEOUSLY PRESSED?
 	private void setControls() {
 		keyListener.addAction(KeyEvent.VK_DOWN, new UserAction(Constant.MOVE + Constant.DOWN, true, true) {
 			private static final long serialVersionUID = 1L;
@@ -110,7 +111,7 @@ public class MainWindow extends JFrame implements Runnable {
 		});
 		keyListener.addAction(KeyEvent.VK_LEFT, new UserAction(Constant.MOVE + Constant.LEFT, true, true) {
 			private static final long serialVersionUID = 1L;
-			
+
 			public void action() {
 				if (!Game.isPaused()) {
 					Game.getPlayer().moveLeft();
@@ -119,7 +120,7 @@ public class MainWindow extends JFrame implements Runnable {
 		});
 		keyListener.addAction(KeyEvent.VK_RIGHT, new UserAction(Constant.MOVE + Constant.RIGHT, true, true) {
 			private static final long serialVersionUID = 1L;
-			
+
 			public void action() {
 				if (!Game.isPaused()) {
 					Game.getPlayer().moveRight();
@@ -128,14 +129,14 @@ public class MainWindow extends JFrame implements Runnable {
 		});
 		keyListener.addAction(KeyEvent.VK_ESCAPE, new UserAction(Constant.EXIT + Constant.GAME, true, false) {
 			private static final long serialVersionUID = 1L;
-			
+
 			public void action() {
 				Game.stop();
 			}
 		});
 		keyListener.addAction(KeyEvent.VK_P, new UserAction(Constant.PAUSE + Constant.GAME, true, false) {
 			private static final long serialVersionUID = 1L;
-			
+
 			public void action() {
 				Game.togglePaused();
 			}
@@ -147,12 +148,12 @@ public class MainWindow extends JFrame implements Runnable {
 	public Rectangle getWinSize() {
 		return this.winSize;
 	}
-	
+
 	@Override
 	public void run() {
 		start();
 	}
-	
+
 	public void start() {
 		status = Game.getStatus();
 		curPanel = panelSet.get(status);

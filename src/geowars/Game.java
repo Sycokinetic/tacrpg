@@ -8,14 +8,16 @@ package geowars;
 import geowars.display.Controller;
 import geowars.display.MainWindow;
 import geowars.entity.Entity;
-import geowars.entity.person.Nonplayer;
+import geowars.entity.person.Person;
 import geowars.entity.person.Player;
+import geowars.entity.world.WorldObject;
+import geowars.map.Map;
+import geowars.map.TestMap;
 
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -37,11 +39,16 @@ public class Game {
 	private static int timeElapse = 0;
 	private static int ups = 0;
 	private static MainWindow window;
+	private static Rectangle winSize;
 
-	private static volatile List<Entity> entityList;
+//	private static volatile List<Entity> entityList;
+	private static volatile List<Person> personList;
+	private static volatile List<WorldObject> worldList;
 
 	private static String status;
 	private static ScheduledExecutorService scheduler;
+
+	private static Map map;
 
 	// == Private methods ==
 	/**
@@ -68,12 +75,56 @@ public class Game {
 		}
 	}
 
+	private static void hitWall(Person p, WorldObject w) {
+		int i = -1;
+
+		String dir = w.getOrientation();
+		
+		if (dir.compareTo(Constant.DOWN) == 0) {
+			i = 0;
+		} else if (dir.compareTo(Constant.LEFT) == 0) {
+			i = 1;
+		} else if (dir.compareTo(Constant.RIGHT) == 0) {
+			i = 2;
+		} else if (dir.compareTo(Constant.UP) == 0) {
+			i = 3;
+		}
+
+		p.setCanMove(i, false);
+	}
+	
+	private static int getDirCode(WorldObject w) {
+		int i = -1;
+
+		String dir = w.getOrientation();
+		
+		if (dir.compareTo(Constant.DOWN) == 0) {
+			i = 0;
+		} else if (dir.compareTo(Constant.LEFT) == 0) {
+			i = 1;
+		} else if (dir.compareTo(Constant.RIGHT) == 0) {
+			i = 2;
+		} else if (dir.compareTo(Constant.UP) == 0) {
+			i = 3;
+		}
+		
+		return i;
+	}
+
 	// == Public Methods ==
 	/**
 	 * @return the list of all entities in the game
 	 */
-	public static synchronized List<Entity> getEntityList() {
-		return entityList;
+//	public static synchronized List<Entity> getEntityList() {
+//		return entityList;
+//	}
+
+	public static synchronized List<Person> getPersonList() {
+		return personList;
+	}
+
+	public static synchronized List<WorldObject> getWorldList() {
+		return worldList;
 	}
 
 	/**
@@ -105,6 +156,10 @@ public class Game {
 
 	public static int getUPS() {
 		return ups;
+	}
+
+	public static Rectangle getWinSize() {
+		return winSize;
 	}
 
 	public static String getVersion() {
@@ -152,22 +207,21 @@ public class Game {
 
 	public static void start() {
 		isRunning = true;
-		entityList = new CopyOnWriteArrayList<Entity>();
 		status = Constant.MAIN;
 
 		window = new MainWindow();
 		windowThread = new Thread(window);
 
-		// Change to map coordinates after completion
-		Rectangle winSize = window.getWinSize();
-		player = new Player(winSize.width / 2 - 50, winSize.height / 2 - 50);
-		entityList.add(player);
+		winSize = window.getWinSize();
+		player = new Player(0, 0);
 
-		Random randGen = new Random();
-		for (int i = 0; i < 100; i++) {
-			entityList.add(new Nonplayer(randGen.nextInt(winSize.width), randGen.nextInt(winSize.height)));
-		}
-//		entityList.add(new Nonplayer(900, 900));
+//		entityList = new CopyOnWriteArrayList<Entity>();
+//		entityList.add(player);
+
+		map = new TestMap();
+//		entityList = map.getEntityList();
+		personList = map.getPersonList();
+		worldList = map.getWorldList();
 
 		windowThread.start();
 
@@ -181,8 +235,13 @@ public class Game {
 
 				Controller.processKeys();
 
-				if (status.compareTo(Constant.PLAY) == 0) {
-					for (Entity i : entityList) {
+//				for (int a = 0; a < 4; a++) {
+//					System.out.print(player.getCanMove()[a] + ", ");
+//				}
+//				System.out.println();
+
+				if (status.compareTo(Constant.PLAY) == 0) {	
+					for (Person i : personList) {
 						i.update();
 
 						if (i != player && sphereCollide(player, i)) {
@@ -190,7 +249,14 @@ public class Game {
 						}
 
 						if (i.getAlive() == Constant.DEAD) {
-							entityList.remove(i);
+							personList.remove(i);
+						}
+					}
+
+					player.setCanMove(true);
+					for (WorldObject i : worldList) {
+						if (sphereCollide(player, i)) {
+							player.setCanMove(getDirCode(i), false);
 						}
 					}
 				}
@@ -223,6 +289,7 @@ public class Game {
 		}
 
 		player = null;
-		entityList = null;
+		personList = null;
+		worldList = null;
 	}
 }
