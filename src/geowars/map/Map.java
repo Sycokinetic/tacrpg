@@ -1,6 +1,5 @@
 package geowars.map;
 
-import geowars.entity.Entity;
 import geowars.entity.person.Person;
 import geowars.entity.world.WorldObject;
 

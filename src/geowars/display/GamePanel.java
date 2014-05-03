@@ -35,3 +35,47 @@ public class GamePanel extends JPanel {
 		}
 	}
 }
+
+// INVESTIGATE THIS IMPLEMENTATION WHEN ALL UI ELEMENTS ARE CUSTOM
+//public class GamePanel extends Canvas implements Runnable {
+//	private Camera cam;
+//	private volatile int count;
+//	private volatile boolean isRunning;
+//
+//	public GamePanel() {
+//		cam = new Camera(true);
+//		createBufferStrategy(3);
+//	}
+//
+//	protected void draw() {
+//		BufferStrategy bs = getBufferStrategy();
+//		if (bs == null) {
+//			createBufferStrategy(3);
+//			return;
+//		}
+//
+//		Graphics g = bs.getDrawGraphics();
+//		g.setColor(Color.BLACK);
+//		g.fillOval(0, 0, 20, 20);
+//		g.dispose();
+//
+//		try {
+//			bs.show();
+//		} catch (NullPointerException e) {
+//
+//		}
+//
+//		count++;
+//	}
+//
+//	public void setRunning(boolean b) {
+//		isRunning = false;
+//	}
+//
+//	@Override
+//	public void run() {
+//		while (count < 3) {
+//			this.draw();
+//		}
+//	}
+//}

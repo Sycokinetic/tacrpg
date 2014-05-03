@@ -1,7 +1,6 @@
 package geowars.display;
 
 import geowars.Game;
-import geowars.entity.Entity;
 
 import java.awt.Point;
 

@@ -16,7 +16,6 @@ import geowars.map.TestMap;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -73,24 +72,6 @@ public class Game {
 		} else {
 			return false;
 		}
-	}
-
-	private static void hitWall(Person p, WorldObject w) {
-		int i = -1;
-
-		String dir = w.getOrientation();
-		
-		if (dir.compareTo(Constant.DOWN) == 0) {
-			i = 0;
-		} else if (dir.compareTo(Constant.LEFT) == 0) {
-			i = 1;
-		} else if (dir.compareTo(Constant.RIGHT) == 0) {
-			i = 2;
-		} else if (dir.compareTo(Constant.UP) == 0) {
-			i = 3;
-		}
-
-		p.setCanMove(i, false);
 	}
 	
 	private static int getDirCode(WorldObject w) {
@@ -215,11 +196,7 @@ public class Game {
 		winSize = window.getWinSize();
 		player = new Player(0, 0);
 
-//		entityList = new CopyOnWriteArrayList<Entity>();
-//		entityList.add(player);
-
 		map = new TestMap();
-//		entityList = map.getEntityList();
 		personList = map.getPersonList();
 		worldList = map.getWorldList();
 
