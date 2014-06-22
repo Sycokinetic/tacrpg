@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="geowars" basedir="." default="jar">
-	<property name="src.dir" value="src/geowars/" />
+<project name="tacRPG" basedir="." default="jar">
+	<property name="src.dir" value="src/tacRPG/" />
 	<property name="build.dir" value="build/" />
 	<property name="classes.dir" value="build/classes/" />
 	<property name="jar.dir" value="build/jar/" />
@@ -21,7 +21,7 @@
 	<target name="jar" description="Archive sources into jar" depends="build">
 		<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
 			<manifest>
-				<attribute name="Main-Class" value="geowars.Launcher" />
+				<attribute name="Main-Class" value="tacRPG.Launcher" />
 			</manifest>			
 		</jar>
 	</target>

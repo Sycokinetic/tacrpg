@@ -1,16 +1,21 @@
-package geowars.entity;
+package tacRPG.resource.entity;
 
-import geowars.Game;
-import geowars.Constant;
-import geowars.resource.Animation;
-import geowars.resource.SpriteLibrary;
 
-import java.awt.image.BufferedImage;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
-public abstract class Entity {
+import javax.swing.JComponent;
+
+import tacRPG.Constant;
+import tacRPG.Game;
+import tacRPG.resource.Animation;
+import tacRPG.resource.SpriteLibrary;
+
+public abstract class Entity extends JComponent {
+	private static final long serialVersionUID = 1L;
+	
 	// == Protected attributes ==
 	protected String SHEETFILE;
 	protected Dimension TILESIZE;

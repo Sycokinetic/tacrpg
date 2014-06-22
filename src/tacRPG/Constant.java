@@ -6,7 +6,7 @@
  * - Contains application-wide constant values, namely enumerated types for 
  */
 
-package geowars;
+package tacRPG;
 
 public class Constant {
 	public static final String NULL = "NULL ";

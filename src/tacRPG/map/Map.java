@@ -1,11 +1,12 @@
-package geowars.map;
+package tacRPG.map;
 
-import geowars.entity.person.Person;
-import geowars.entity.world.WorldObject;
 
 import java.awt.Point;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import tacRPG.resource.entity.person.Person;
+import tacRPG.resource.entity.world.WorldObject;
 
 public abstract class Map {
 	List<Person> personList;

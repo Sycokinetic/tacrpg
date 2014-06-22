@@ -1,12 +1,13 @@
-package geowars.display;
+package tacRPG.display;
 
-import geowars.Game;
-import geowars.entity.Entity;
 
 import java.awt.Graphics;
 import java.util.ArrayList;
 
 import javax.swing.JPanel;
+
+import tacRPG.Game;
+import tacRPG.resource.entity.Entity;
 
 public class GamePanel extends JPanel {
 	private Camera cam;
@@ -36,7 +37,7 @@ public class GamePanel extends JPanel {
 	}
 }
 
-// INVESTIGATE THIS IMPLEMENTATION WHEN ALL UI ELEMENTS ARE CUSTOM
+// INVESTIGATE THIS IMPLEMENTATION
 //public class GamePanel extends Canvas implements Runnable {
 //	private Camera cam;
 //	private volatile int count;

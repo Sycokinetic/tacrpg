@@ -1,8 +1,9 @@
-package geowars.display;
+package tacRPG.display;
 
-import geowars.Game;
 
 import java.awt.Point;
+
+import tacRPG.Game;
 
 public class Camera {
 	private boolean followPlayer;

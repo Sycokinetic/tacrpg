@@ -1,4 +1,4 @@
-package geowars.resource;
+package tacRPG.resource;
 
 
 import java.awt.image.BufferedImage;

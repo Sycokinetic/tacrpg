@@ -1,6 +1,5 @@
-package geowars.display;
+package tacRPG.display;
 
-import geowars.Game;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -10,6 +9,8 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
+import tacRPG.Game;
 
 public class MainMenuPanel extends JPanel {
 	private class LaunchListener implements ActionListener {

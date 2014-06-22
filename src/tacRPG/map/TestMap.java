@@ -1,12 +1,13 @@
-package geowars.map;
+package tacRPG.map;
 
-import geowars.Constant;
-import geowars.Game;
-import geowars.entity.person.Nonplayer;
-import geowars.entity.world.Wall;
 
 import java.awt.Point;
 import java.util.Random;
+
+import tacRPG.Constant;
+import tacRPG.Game;
+import tacRPG.resource.entity.person.Nonplayer;
+import tacRPG.resource.entity.world.Wall;
 
 public class TestMap extends Map {
 	@Override

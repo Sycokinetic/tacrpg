@@ -1,11 +1,14 @@
-package geowars.entity.world;
+package tacRPG.resource.entity.world;
 
-import geowars.Constant;
 
 import java.awt.Dimension;
 import java.awt.Point;
 
+import tacRPG.Constant;
+
 public class Count extends WorldObject {
+	private static final long serialVersionUID = 1L;
+
 	public Count() {
 		this.loadData();
 	}

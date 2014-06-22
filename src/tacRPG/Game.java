@@ -3,16 +3,8 @@
  * Author: Sycokinetic
  */
 
-package geowars;
+package tacRPG;
 
-import geowars.display.Controller;
-import geowars.display.MainWindow;
-import geowars.entity.Entity;
-import geowars.entity.person.Person;
-import geowars.entity.person.Player;
-import geowars.entity.world.WorldObject;
-import geowars.map.Map;
-import geowars.map.TestMap;
 
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -20,6 +12,15 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import tacRPG.display.Controller;
+import tacRPG.display.MainWindow;
+import tacRPG.map.Map;
+import tacRPG.map.TestMap;
+import tacRPG.resource.entity.Entity;
+import tacRPG.resource.entity.person.Person;
+import tacRPG.resource.entity.person.Player;
+import tacRPG.resource.entity.world.WorldObject;
 
 public class Game {
 	// == Private attributes ==

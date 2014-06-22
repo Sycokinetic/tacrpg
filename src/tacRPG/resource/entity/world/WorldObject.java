@@ -1,10 +1,13 @@
-package geowars.entity.world;
+package tacRPG.resource.entity.world;
 
-import geowars.Constant;
-import geowars.entity.Entity;
 import java.awt.Point;
 
+import tacRPG.Constant;
+import tacRPG.resource.entity.Entity;
+
 public abstract class WorldObject extends Entity {
+	private static final long serialVersionUID = 1L;
+	
 	protected String orientation;
 	
 	public WorldObject() {

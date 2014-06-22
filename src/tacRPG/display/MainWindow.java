@@ -1,8 +1,5 @@
-package geowars.display;
+package tacRPG.display;
 
-import geowars.Constant;
-import geowars.Game;
-import geowars.display.Controller.UserAction;
 
 import java.awt.BorderLayout;
 import java.awt.GraphicsDevice;
@@ -15,6 +12,10 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import tacRPG.Constant;
+import tacRPG.Game;
+import tacRPG.display.Controller.UserAction;
 
 public class MainWindow extends JFrame implements Runnable {
 	// == Private attributes ==

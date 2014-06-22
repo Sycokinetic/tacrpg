@@ -1,11 +1,14 @@
-package geowars.entity.world;
+package tacRPG.resource.entity.world;
 
-import geowars.Constant;
 
 import java.awt.Dimension;
 import java.awt.Point;
 
+import tacRPG.Constant;
+
 public class Wall extends WorldObject {
+	private static final long serialVersionUID = 1L;
+
 	public Wall(String s) {
 		this.curKey = s;
 		this.orientation = s;

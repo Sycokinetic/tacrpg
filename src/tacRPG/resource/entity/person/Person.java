@@ -1,12 +1,14 @@
-package geowars.entity.person;
+package tacRPG.resource.entity.person;
 
-import geowars.Constant;
-import geowars.entity.Entity;
 
 import java.awt.Point;
 
+import tacRPG.Constant;
+import tacRPG.resource.entity.Entity;
+
 public abstract class Person extends Entity {
-	
+	private static final long serialVersionUID = 1L;
+
 	public Person() {
 		collideAction = Constant.ATTACK;
 	}

@@ -1,11 +1,14 @@
-package geowars.entity.person;
+package tacRPG.resource.entity.person;
 
-import geowars.Constant;
 
 import java.awt.Dimension;
 import java.awt.Point;
 
+import tacRPG.Constant;
+
 public class Player extends Person {
+	private static final long serialVersionUID = 1L;
+
 	public Player() {
 	}
 
